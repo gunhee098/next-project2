@@ -1,8 +1,7 @@
-// 📂 app/page.tsx (기존 API와 호환되는 로그인페이지)
+// 📂 app/page.tsx (既存のAPIと互換性のあるログインペー)
 "use client"; // このファイルがクライアントコンポーネントであることを宣言します。
 
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // Next.jsルーターフックをインポートします。
 import { useLang } from "@/components/LanguageProvider"; // 言語プロバイダーをインポートします。
 import { useAuth } from "@/hooks/useAuth"; // 認証フックをインポート
 
@@ -24,7 +23,6 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false); // ローディング状態を追加
   const [error, setError] = useState(""); // エラー状態を追加
   const [loginAttempts, setLoginAttempts] = useState(0); // ログイン試行回数を追跡
-  const router = useRouter(); // Next.jsルーターフックを初期化します。
 
   const { lang, setLang } = useLang(); // 言語状態と設定関数を取得します。
   const dict = lang === "ja" ? ja : en; // 現在の言語に応じた辞書データを設定します。

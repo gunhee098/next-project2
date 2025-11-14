@@ -22,7 +22,7 @@ export interface JWTPayload extends User {
  */
 export async function getCurrentUser(): Promise<User | null> {
   try {
-    const cookieStore = await cookies(); // await 추가
+    const cookieStore = await cookies(); 
     const token = cookieStore.get('auth-token')?.value;
 
     if (!token) {
@@ -37,7 +37,7 @@ export async function getCurrentUser(): Promise<User | null> {
 
     const decoded = jwt.verify(token, jwtSecret) as JWTPayload;
     
-    // 필요なフィールドの検証
+    // 必要なフィールドの検証
     if (!decoded.id || !decoded.email || !decoded.name) {
       return null;
     }
@@ -92,7 +92,7 @@ export function generateJWT(user: User): string {
     },
     jwtSecret,
     {
-      expiresIn: '24h', // 24시간 유효
+      expiresIn: '24h', // トークンの有効期限
       issuer: 'blog-app',
       audience: 'blog-users',
     }
@@ -107,6 +107,6 @@ export const AUTH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'strict' as const,
-  maxAge: 60 * 60 * 24, // 24시간
+  maxAge: 60 * 60 * 24, // 24時間
   path: '/',
 } as const;

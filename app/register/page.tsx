@@ -113,7 +113,7 @@ export default function RegisterPage() {
         <ThemeToggleButton />
       </div>
 
-      {/* 등록フォームカード */}
+      {/* フォームカード */}
       <div className={`p-8 rounded-2xl shadow-2xl w-full max-w-md transition-all duration-300 ${
         theme === 'dark'
           ? 'bg-gray-800/60 border border-gray-700/50'

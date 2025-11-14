@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
  * コメントのいいねを削除する (DELETEリクエスト)
  */
 export async function DELETE(request: NextRequest) {
-  let commentId: string | undefined; // 미리 선언
+  let commentId: string | undefined; // 事前に宣言
 
   try {
     const authenticatedUser = await getCurrentUser();
@@ -66,7 +66,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const body = await request.json();
-    commentId = body.commentId; // 미리 저장
+    commentId = body.commentId; // 事前に保存
 
     if (!commentId) {
       console.warn("コメントいいね削除: commentId が不足しています。");

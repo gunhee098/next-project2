@@ -1,12 +1,9 @@
-// 📂 app/api/auth/route.ts (セッション独立性強化版)
+// 📂 app/api/auth/route.ts (Auth Service使用版)
 
 import { NextResponse } from "next/server";
-import { cookies } from 'next/headers';
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import crypto from "crypto";
-import { AUTH_COOKIE_OPTIONS } from "@/lib/auth";
+import { generateJWT, AUTH_COOKIE_OPTIONS } from "@/lib/auth";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 const SALT_ROUNDS = 12;
@@ -88,34 +85,6 @@ function getClientIP(request: Request): string {
          xRealIP || 
          cfConnectingIP || 
          'unknown';
-}
-
-// セッション独立性を確保するJWT生成関数
-function generateSessionJWT(user: { id: string; name: string; email: string }): string {
-  const jwtSecret = process.env.JWT_SECRET;
-  if (!jwtSecret) {
-    throw new Error('JWT_SECRET環境変数が設定されていません');
-  }
-
-  // 🔒 セッション独立性: 各ログインごとに固有のセッションIDを生成
-  const sessionId = crypto.randomUUID();
-  const loginTimestamp = Date.now();
-  const browserFingerprint = crypto.randomBytes(16).toString('hex'); // ブラウザ識別用
-
-  return jwt.sign({
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    sessionId: sessionId,           // 各セッション固有のID
-    loginTime: loginTimestamp,      // ログイン時刻
-    browserFp: browserFingerprint,  // ブラウザフィンガープリント
-    iat: Math.floor(Date.now() / 1000)
-  }, jwtSecret, {
-    expiresIn: '24h',
-    algorithm: 'HS256',
-    issuer: 'blog-app',
-    audience: 'blog-users'
-  });
 }
 
 export async function POST(req: Request) {
@@ -214,14 +183,15 @@ export async function POST(req: Request) {
           );
         }
 
-        // 🔒 セッション独立性を確保したJWTトークンを生成
+        // 🔒 Auth Serviceを使用してJWTトークンを生成
+        // nameがnullの場合は空文字列に変換してからJWT生成
         const userData = {
           id: user.id,
-          name: user.name || '',
+          name: user.name || '', // nullの場合は空文字列に変換
           email: user.email,
         };
         
-        const token = generateSessionJWT(userData);
+        const token = generateJWT(userData);
         
         // レスポンス作成
         const response = NextResponse.json({ 
@@ -229,11 +199,9 @@ export async function POST(req: Request) {
           user: userData
         }, { status: 200 });
 
-        // 🔒 セッション独立性: 各ログインごとに固有のクッキー名を使用
-        const uniqueCookieName = `${AUTH_COOKIE_OPTIONS.name}-${crypto.randomBytes(4).toString('hex')}`;
-        
+        // 🔒 統一されたクッキー設定を使用
         response.cookies.set(
-          AUTH_COOKIE_OPTIONS.name, // 基本クッキー名は統一
+          AUTH_COOKIE_OPTIONS.name,
           token,
           {
             httpOnly: AUTH_COOKIE_OPTIONS.httpOnly,
@@ -244,7 +212,7 @@ export async function POST(req: Request) {
           }
         );
 
-        console.log(`✅ ログイン成功 (セッション独立): ${user.email}`);
+        console.log(`✅ ログイン成功: ${user.email}`);
         return response;
 
       } catch (error) {

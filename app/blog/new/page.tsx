@@ -118,7 +118,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       },
       // 認証は Cookie を通して自動的に送信される
       body: JSON.stringify({ title, content, image_url: imageUrl }),
-      credentials: "include", // ← 重要！Cookieを一緒に送信
+      credentials: "include", 
     });
 
     if (!res.ok) {
@@ -250,7 +250,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               />
             </div>
 
-            {/* 画像アップロードフィールド - 편집 페이지와 동일하게 수정 */}
+            {/* 画像アップロードフィールド */}
             <div>
               <label htmlFor="image" className={`block text-sm font-medium mb-2 ${
                 theme === 'dark' ? 'text-gray-300' : 'text-gray-700'

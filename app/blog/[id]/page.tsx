@@ -99,7 +99,7 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
       }      
       const res = await fetch(`/api/posts/${id}`, {
         method: "GET",
-        credentials: 'include',  // ← fetch 옵션으로 이동
+        credentials: 'include',  
         headers: {
           "Content-Type": "application/json",
         },
@@ -225,7 +225,7 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
       
       const res = await fetch(`/api/posts/${id}`, {
         method: "DELETE",
-        credentials: 'include', // httpOnly 쿠키 사용
+        credentials: 'include', 
         headers: {
           'Content-Type': 'application/json',
           credentials: 'include'

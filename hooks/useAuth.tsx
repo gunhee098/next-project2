@@ -27,7 +27,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 /**
  * AuthProvider コンポーネント
  * アプリケーションの認証状態を管理し、子コンポーネントに認証コンテキストを提供します。
- * 🔒 既存のhttpOnly クッキー実装と互換性を保ちます。
+ * 🔒 既存の httpOnly クッキー実装と互換性を保ちます。
  * @param {ReactNode} children - ラップする子React要素
  */
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -35,39 +35,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState<boolean>(true);       // ローディング状態
   const [mounted, setMounted] = useState<boolean>(false);       // クライアントでマウントされたかどうかの状態
 
-  const router = useRouter(); // Next.jsルーターフックを初期化
+  const router = useRouter(); // Next.js ルーターを初期化
 
-  // コンポーネントがクライアントサイドでマウントされたときに mounted を true に設定
+  // クライアントサイドでマウントされたら mounted を true に設定
   useEffect(() => {
     setMounted(true);
   }, []);
 
   /**
    * 認証状態をチェックする非同期関数。
-   * 🔒 既存の /api/auth/me エンドポイントと互換性を保ちます。
-   * httpOnly クッキーに保存されたトークンを使用して認証を検証します。
+   * 🔒 既存の /api/auth/me エンドポイントと互換性あり。
+   * httpOnly クッキーに保存されたトークンを使用して認証を検証。
    */
   const checkAuth = useCallback(async () => {
-    // コンポーネントがマウントされていない場合は何もしない (SSR時のエラー防止)
+    // マウントされていない場合は何もしない（SSRエラー防止）
     if (!mounted) {
       setLoading(false);
       return;
     }
 
-    setLoading(true); // 認証チェック開始時にローディング状態を設定
+    setLoading(true); // 認証チェック開始
     try {
-      // 🔒 既存のAPI構造に合わせてcredentials: 'include' でhttpOnlyクッキーを送信
+      // httpOnly クッキーを送信
       const res = await fetch('/api/auth/me', {
         method: 'GET',
-        credentials: 'include', // httpOnly クッキーを含めて送信
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
       if (res.ok) {
-        const userData = await res.json(); // ユーザーデータをJSONとしてパース
-        // ユーザーデータが実際に変更された場合のみ状態を更新し、不要な再レンダリングを防ぎます。
+        const userData = await res.json();
+        // 状態が実際に変わった場合のみ更新
         setUser(prevUser => {
           if (!prevUser || prevUser.id !== userData.id) {
             return userData;
@@ -75,47 +75,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return prevUser;
         });
       } else {
-        setUser(null); // 認証失敗時はユーザーをnullに設定
+        setUser(null); // 認証失敗 → ユーザー情報クリア
       }
     } catch (error) {
       console.error('認証チェックエラー:', error);
-      setUser(null); // ユーザーをnullに設定
+      setUser(null);
     } finally {
-      setLoading(false); // 認証チェック完了時にローディング状態を解除
+      setLoading(false); // 完了
     }
-  }, [mounted]); // mounted が変更された場合にのみ関数を再生成
+  }, [mounted]);
 
   /**
-   * ログイン処理を行う関数。
-   * 🔒 既存のAPIレスポンス構造と互換性を保ちます。
-   * ログイン成功後にサーバーがhttpOnlyクッキーを設定します。
-   * @param {User} userData - ログインユーザーのデータ
+   * ログイン処理を実行する関数。
+   * 🔒 既存のAPI仕様と互換性あり。
+   * 成功後はサーバーが httpOnly クッキーを設定。
    */
   const login = useCallback(async (userData: User) => {
-    console.log("🔄 useAuth login 함수 시작:", userData);
+    console.log("🔄 useAuth login 関数開始:", userData);
     setUser(userData); // ユーザー状態を設定
     
-    // 상태 업데이트 후 즉시 페이지 이동
+    // 状態更新後すぐにページ遷移
     try {
-      console.log("🔄 /blog로 리다이렉트 시도");
-      await router.push('/blog');    // ブログページへリダイレクト
-      console.log("✅ 페이지 이동 완료");
-      router.refresh();       // ページのデータを再フェッチして最新の状態にする
+      console.log("🔄 /blog へリダイレクトを試行");
+      await router.push('/blog'); // ブログページへ移動
+      console.log("✅ ページ遷移完了");
+      router.refresh(); // 最新データ取得
     } catch (error) {
-      console.error("❌ 페이지 이동 실패:", error);
-      // 대안: window.location 사용
+      console.error("❌ ページ遷移失敗:", error);
+      // 代替として window.location を使用
       window.location.href = '/blog';
     }
   }, [router]);
 
   /**
-   * ログアウト処理を行う関数。
-   * 🔒 専用のログアウトエンドポイントがない場合、クライアントサイドで状態をクリアします。
-   * サーバーサイドでクッキーが期限切れになるまで待つか、専用エンドポイントを作成することを推奨。
+   * ログアウト処理。
+   * 🔒 ログアウト専用 API がない場合、クライアント側で状態をクリア。
    */
   const logout = useCallback(async () => {
     try {
-      // 로그아웃 API 호출
+      // ログアウトAPI 呼び出し
       await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
@@ -123,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('ログアウトAPIエラー:', error);
     } finally {
-      // API 성공/실패와 관계없이 상태 클리어
+      // 成否に関わらず状態をクリア
       setUser(null);
       
       setTimeout(() => {
@@ -133,38 +131,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [router]);
 
-  // コンポーネントがマウントされた後、初回認証チェックを実行します。
+  // マウント後に初回認証チェックを実行
   useEffect(() => {
     if (mounted) {
       checkAuth();
     }
   }, [checkAuth, mounted]);
 
-  // ブラウザのフォーカスイベントや visibility 変更時に認証状態を再確認します。
+  // ブラウザがフォーカスされたり非表示 → 表示に戻ったとき認証を再確認
   useEffect(() => {
-    if (!mounted) return; // クライアントでマウントされていない場合は何もしない
+    if (!mounted) return;
 
     const handleFocus = () => {
-      checkAuth(); // ウィンドウがフォーカスされたときに認証チェック
+      checkAuth();
     };
 
     const handleVisibilityChange = () => {
-      if (!document.hidden) { // ページが再び表示状態になったときに
-        checkAuth();         // 認証チェック
+      if (!document.hidden) {
+        checkAuth();
       }
     };
 
-    window.addEventListener('focus', handleFocus);                 // focus イベントリスナーを追加
-    document.addEventListener('visibilitychange', handleVisibilityChange); // visibilitychange イベントリスナーを追加
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // クリーンアップ関数: コンポーネントのアンマウント時にイベントリスナーを削除
     return () => {
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [mounted, checkAuth]); // 依存配列に mounted と checkAuth を含める
+  }, [mounted, checkAuth]);
 
-  // AuthContext に提供する値を useMemo でメモ化し、不要な再計算を防ぎます。
+  // メモ化して再レンダリング最適化
   const value = useMemo(() => ({ 
     user, 
     loading, 
@@ -181,14 +178,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 /**
- * AuthContext から認証コンテキストを取得するためのカスタムフック。
- * AuthProvider の内部で使用されない場合、エラーをスローします。
- * @returns {AuthContextType} 認証コンテキストの値
+ * 認証コンテキストを取得するカスタムフック
+ * AuthProvider の外部で使われた場合はエラーをスロー
  */
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === null) {
-    // AuthProvider の外部で useAuth が呼び出された場合のエラーハンドリング
     throw new Error('useAuth は AuthProvider 内で使用する必要があります。');
   }
   return context;

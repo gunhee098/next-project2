@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const existingLike = await prisma.like.findUnique({
       where: {
         userId_postId: { // 複合ユニークキーを使用して検索
-          userId: authenticatedUser.id, // userIdをidに修正
+          userId: authenticatedUser.id, 
           postId: postId,
         },
       },
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       await prisma.like.delete({
         where: {
           userId_postId: {
-            userId: authenticatedUser.id, // userIdをidに修正
+            userId: authenticatedUser.id, 
             postId: postId,
           },
         },
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       // 「いいね」がない場合、新しく作成します。
       const newLike = await prisma.like.create({
         data: {
-          userId: authenticatedUser.id, // userIdをidに修正
+          userId: authenticatedUser.id, 
           postId: postId,
         },
       });
@@ -101,7 +101,7 @@ export async function DELETE(request: NextRequest) {
     const deletedLike = await prisma.like.delete({
       where: {
         userId_postId: { // 複合ユニークキーを使用して削除対象を特定
-          userId: authenticatedUser.id, // userIdをidに修正
+          userId: authenticatedUser.id, 
           postId: postId,
         },
       },

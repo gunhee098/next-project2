@@ -56,7 +56,7 @@ export default function BlogPage() {
   // 言語とテーマ設定のフックを使用
   const { lang, setLang } = useLang();
   const dict = lang === "ja" ? jaDict : en;
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
 
   // 🔒 認証されていない場合 로그인 페이지로 리다이렉트
   useEffect(() => {
@@ -190,60 +190,6 @@ export default function BlogPage() {
   };
 
   // いいねの切り替えを処理
-  const handleLikeToggle = async (postId: string) => {
-    if (!user) {
-      alert("ログインが必要です。");
-      router.push('/');
-      return;
-    }
-
-    try {
-      // 🔒 httpOnlyクッキーを使用
-      const res = await fetch('/api/likes', {
-        method: 'POST',
-        credentials: 'include', // httpOnlyクッキーを送信
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ postId }),
-      });
-
-      if (res.status === 401 || res.status === 403) {
-        alert("セッションが期限切れか、権限がありません。再度ログインしてください。");
-        router.push('/');
-        return;
-      }
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ error: '不明なエラー' }));
-        if (res.status === 409) {
-          console.warn("既に「いいね」済みか、同時「いいね」試行です。");
-        }
-        throw new Error(errorData.error || `サーバーエラーが発生しました: ${res.status} ${res.statusText}`);
-      }
-
-      const { message, isLiked } = await res.json();
-
-      setPosts(prevPosts =>
-        prevPosts.map(post => {
-          if (post.id === postId) {
-            return {
-              ...post,
-              _count: {
-                ...post._count,
-                likes: isLiked ? post._count.likes + 1 : post._count.likes - 1,
-              },
-            };
-          }
-          return post;
-        })
-      );
-    } catch (e: any) {
-      alert(`「いいね」処理に失敗しました: ${e.message}`);
-      console.error("「いいね」の切り替えに失敗しました:", e);
-      fetchPosts(search, sortOrder);
-    }
-  };
 
   // モバイルメニューの切り替え
   const toggleMobileMenu = () => {
@@ -404,7 +350,7 @@ export default function BlogPage() {
         {/* メインコンテンツ - モバイル対応 */}
         <main className="px-4 md:px-8 pb-8">
           
-          {/* 새로운 투고 버튼 */}
+          {/* 新規投稿ボタン */}
           <div className="mb-6 md:mb-8 text-center">
             <button
               onClick={() => router.push("/blog/new")}
@@ -417,14 +363,14 @@ export default function BlogPage() {
             </button>
           </div>
 
-          {/* 검색・필터 부분 - 모바일 대응 */}
+          {/* 検索・フィルター部分（モバイル対応） */}
           <div className={`mb-6 md:mb-8 p-4 md:p-6 rounded-2xl ${
             theme === 'dark'
               ? 'bg-gray-800/50 backdrop-blur-sm border border-gray-700/50'
               : 'bg-white/70 backdrop-blur-sm border border-gray-200/50'
           } shadow-xl`}>
             
-            {/* 검색 필드 */}
+            {/* 検索フィールド */}
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4 items-stretch sm:items-center justify-center mb-4">
               <div className="flex-1 max-w-md relative">
                 <input
@@ -458,7 +404,7 @@ export default function BlogPage() {
               </button>
             </div>
 
-            {/* 필터 버튼 */}
+            {/* フィルターボタン */}
             <div className="flex flex-wrap gap-2 md:gap-3 justify-center">
               {search && (
                 <button
@@ -501,7 +447,7 @@ export default function BlogPage() {
             </div>
           </div>
 
-          {/* 투고 리스트 - 모바일 대응 */}
+          {/* 投稿リスト（モバイル対応） */}
           <div className="grid gap-4 md:gap-6">
             {posts.length === 0 ? (
               <div className={`text-center py-8 md:py-12 ${
@@ -523,7 +469,7 @@ export default function BlogPage() {
                       : 'bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-white/90 hover:border-gray-300/50'
                   } shadow-lg hover:shadow-2xl`}
                 >
-                  {/* 투고 이미지 */}
+                  {/* 投稿画像 */}
                   {post.imageUrl && (
                     <div className="relative h-36 md:h-48 overflow-hidden">
                       <img
@@ -535,13 +481,13 @@ export default function BlogPage() {
                     </div>
                   )}
 
-                  {/* 투고 내용 */}
+                  {/* 投稿内容 */}
                   <div className="p-4 md:p-6">
                     
-                    {/* 헤더 부분 */}
+                    {/* ヘッダー部分 */}
                     <div className="flex items-start justify-between mb-3 md:mb-4">
                       <div className="flex-1 min-w-0">
-                        {/* 제목 */}
+                        {/* タイトル */}
                         <h2 className={`text-lg md:text-xl font-bold mb-2 line-clamp-2 ${
                           theme === 'dark' ? 'text-white' : 'text-gray-900'
                         }`}>
@@ -553,7 +499,7 @@ export default function BlogPage() {
                           </Link>
                         </h2>
                         
-                        {/* 사용자 정보 */}
+                        {/* ユーザー情報 */}
                         <div className="flex items-center space-x-2 mb-3">
                           <div className={`w-6 md:w-8 h-6 md:h-8 rounded-full flex items-center justify-center ${
                             theme === 'dark'
@@ -579,7 +525,7 @@ export default function BlogPage() {
                         </div>
                       </div>
 
-                      {/* 편집・삭제 버튼 */}
+                      {/* 編集・削除ボタン */}
                       {user && user.id === post.userId && (
                         <div className="flex space-x-1 md:space-x-2 ml-2 md:ml-4 flex-shrink-0">
                           <button
@@ -612,7 +558,7 @@ export default function BlogPage() {
                       )}
                     </div>
 
-                    {/* 투고 내용 미리보기 */}
+                    {/* 投稿内容プレビュー */}
                     <div className={`mb-3 md:mb-4 ${
                       theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
                     }`}>
@@ -624,10 +570,10 @@ export default function BlogPage() {
                       </p>
                     </div>
 
-                    {/* 푸터：좋아요・댓글 수・상세 링크 */}
+                    {/* フッター：いいね・コメント数・詳細リンク */}
                     <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-gray-200/20">
                       
-                      {/* 좋아요・댓글 수 */}
+                      {/* いいね・コメント数 */}
                       <div className="flex items-center space-x-3 md:space-x-4">
                         <div className="flex items-center space-x-1">
                           <svg className={`w-3 md:w-4 h-3 md:h-4 ${
@@ -656,7 +602,7 @@ export default function BlogPage() {
                         </div>
                       </div>
 
-                      {/* 상세 링크 */}
+                      {/*  詳細リンク */}
                       <Link
                         href={`/blog/${post.id}`}
                         className={`inline-flex items-center space-x-1 text-xs md:text-sm font-medium transition-colors duration-200 ${

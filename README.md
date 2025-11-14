@@ -1,229 +1,267 @@
-# My Blog App
+# Modern Blog Application
 
-Next.js App Routerを使用して構築された現代的なブログアプリケーションです。JWT認証、コメント、いいね機能、ダークモード、多言語サポートなどの機能を提供します。
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-15-black?logo=next.js" alt="Next.js">
+  <img src="https://img.shields.io/badge/TypeScript-5-blue?logo=typescript" alt="TypeScript">
+  <img src="https://img.shields.io/badge/PostgreSQL-latest-blue?logo=postgresql" alt="PostgreSQL">
+  <img src="https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma" alt="Prisma">
+</p>
 
-## 🔒 セキュリティ強化版
+Next.js 15 (App Router) + TypeScript で構築した、エンタープライズグレードのセキュリティを実装したブログアプリケーションです。
 
-このバージョンは**httpOnlyクッキーベースの認証**を採用し、XSS攻撃に対する保護を強化しています。
+## 🎯 プロジェクト概要
 
-### セキュリティ特徴
+このアプリケーションは、実務レベルのセキュリティ対策、認証システム、データベース設計を実践したフルスタックアプリケーションです。モダンな技術スタックと、実際のプロダクション環境で必要とされるベストプラクティスを採用しています。
 
-- **httpOnlyクッキー**: JWTトークンをhttpOnlyクッキーに保存し、JavaScriptからのアクセスを防止
-- **XSS攻撃防止**: クライアント側でトークンが盗まれるリスクを排除
-- **SameSite属性**: CSRF攻撃を防ぐためSameSite=Strictを設定
-- **Secure属性**: HTTPS環境でのみクッキーを送信
-- **自動認証**: `credentials: 'include'`で全APIリクエストに自動的にクッキーを含める
+**🌐 デモURL**: [https://next-project2-rosy.vercel.app/]
+**📂 GitHubリポジトリ**: [https://github.com/gunhee098/next-project2.git]
 
-## 🚀 主な機能
+## ✨ 主要機能
 
-- **ユーザー認証**: JWT基盤の会員登録・ログイン（httpOnlyクッキー方式）
-- **ブログ投稿**: 記事の作成、編集、削除
-- **コメントシステム**: 記事別コメント作成・削除
-- **いいね機能**: 記事への「いいね」・取り消し
-- **画像アップロード**: Cloudinary連携
-- **検索機能**: タイトル・内容検索
-- **ダークモード**: ライト・ダークテーマ対応
-- **多言語対応**: 英語・日本語サポート
-- **レスポンシブデザイン**: モバイルフレンドリーUI
+### 認証・セキュリティ
+- ✅ **JWT認証** (httpOnly Cookie方式)
+- ✅ **パスワードハッシュ化** (bcrypt, SALT_ROUNDS=12)
+- ✅ **セッション独立性** (複数デバイス対応)
+- ✅ **レート制限** (ブルートフォース攻撃対策)
 
-## 🛠 技術スタック
+### コア機能
+- ✅ **投稿管理** (CRUD操作、画像アップロード)
+- ✅ **コメントシステム** (ネストされた会話)
+- ✅ **いいね機能** (リアルタイム更新)
+- ✅ **検索機能** (タイトル・内容の全文検索)
 
-- **フロントエンド**: React 18, Next.js 13+ (App Router), TypeScript
-- **スタイリング**: Tailwind CSS
-- **バックエンド**: Next.js API Routes
-- **データベース**: PostgreSQL + Prisma ORM
-- **認証**: JWT + httpOnlyクッキー + bcrypt
-- **画像ストレージ**: Cloudinary
-- **ユーティリティ**: date-fns
+### UI/UX
+- ✅ **レスポンシブデザイン** (モバイルファースト)
+- ✅ **ダークモード** (システム設定連動)
+- ✅ **多言語対応** (日本語・英語)
+- ✅ **アクセシビリティ** (WAI-ARIA準拠)
 
-## 📁 プロジェクト構造
+## 🛠️ 技術スタック
 
+### Frontend
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript 5
+- **Styling**: Tailwind CSS 3
+- **State Management**: React Hooks (useState, useEffect, useCallback)
+- **UI Components**: Custom components with Tailwind
+
+### Backend
+- **API**: Next.js API Routes (RESTful)
+- **ORM**: Prisma 5
+- **Database**: PostgreSQL
+- **Authentication**: JWT + bcrypt
+- **Image Storage**: Cloudinary
+
+### 開発ツール
+- **Version Control**: Git / GitHub
+- **Package Manager**: npm
+- **Linting**: ESLint
+- **Formatting**: Prettier
+
+## 🔐 実装したセキュリティ対策
+
+このプロジェクトでは、以下のセキュリティ対策を実装しています：
+
+| 対策 | 実装方法 | 効果 |
+|------|----------|------|
+| **XSS攻撃防止** | httpOnly Cookie | JSからトークンアクセス不可 |
+| **CSRF攻撃防止** | SameSite=Lax Cookie | クロスサイトリクエスト制限 |
+| **パスワード保護** | bcrypt (SALT_ROUNDS=12) | DB漏洩時も安全 |
+| **ブルートフォース対策** | レート制限 (15分/5回) | 総当たり攻撃防止 |
+| **セッション管理** | 固有sessionId付与 | デバイス間の独立性確保 |
+| **SQL Injection対策** | Prisma ORM | パラメータ化クエリ |
+
+### 認証フロー
+```typescript
+// 1. ログイン時
+POST /api/auth
+→ JWTトークン生成 (sessionId付与)
+→ httpOnly Cookie に保存
+
+// 2. API呼び出し時
+fetch('/api/posts', {
+  credentials: 'include' // Cookie自動送信
+})
+→ ミドルウェアで認証チェック
+→ 認証済みならデータ返却
+
+// 3. ログアウト時
+POST /api/logout
+→ Cookie削除
 ```
-my-next-project/
-├── app/
-│   ├── api/                 # APIルート
-│   │   ├── auth/           # 認証API（httpOnlyクッキー対応）
-│   │   ├── comments/       # コメントAPI
-│   │   ├── likes/          # いいねAPI
-│   │   ├── posts/          # 記事API
-│   │   ├── upload/         # 画像アップロードAPI
-│   │   ├── auth/me/        # 現在のユーザー情報取得
-│   │   └── user/           # ユーザーAPI
-│   ├── blog/               # ブログページ群
-│   │   ├── [id]/           # 個別記事ページ
-│   │   ├── [id]/edit/      # 記事編集ページ
-│   │   ├── new/            # 新規記事作成
-│   │   └── page.tsx        # 記事一覧
-│   ├── components/         # 再利用可能コンポーネント
-│   │   ├── LanguageProvider.tsx
-│   │   ├── ThemeProvider.tsx
-│   │   ├── ThemeToggleButton.tsx
-│   │   ├── ShareButton.tsx
-│   │   └── post-form.tsx
-│   ├── lib/                # ライブラリ・設定
-│   │   ├── auth.ts         # 認証ユーティリティ（httpOnlyクッキー対応）
-│   │   └── prisma.ts
-│   ├── locales/           # 多言語ファイル
-│   │   ├── en.json
-│   │   └── ja.json
-│   ├── register/          # ユーザー登録
-│   ├── hooks/            # カスタムフック
-│   │   └── useAuth.tsx
-│   ├── styles/           # スタイル
-│   │   └── globals.css
-│   ├── layout.tsx        # グローバルレイアウト
-│   ├── page.tsx          # メインページ（ログイン）
-│   ├── providers.tsx     # Context Providers
-│   └── middleware.ts     # Next.js ミドルウェア（認証保護）
-├── prisma/              # データベーススキーマ
-├── public/              # 静的ファイル
-│   └── *.svg           # アイコンファイル群
-├── .env                 # 環境変数
-├── README.md           # このファイル
-└── 設定ファイル群...
+
+## 📂 プロジェクト構造
+```
+app/
+├── api/                    # REST API エンドポイント
+│   ├── auth/              # 認証 (登録/ログイン)
+│   ├── posts/             # 投稿CRUD
+│   ├── comments/          # コメントCRUD
+│   ├── likes/             # いいね機能
+│   └── upload/            # 画像アップロード
+├── blog/                  # ブログページ
+│   ├── [id]/             # 動的ルーティング
+│   ├── [id]/edit/        # 投稿編集
+│   └── new/              # 新規投稿
+├── components/            # 再利用可能コンポーネント
+├── hooks/                 # カスタムフック
+├── lib/                   # ユーティリティ関数
+│   ├── auth.ts           # 認証ヘルパー
+│   └── prisma.ts         # Prismaクライアント
+└── middleware.ts         # 認証ミドルウェア
+
+prisma/
+└── schema.prisma         # データベーススキーマ
 ```
 
-## 🏃‍♂️ 開始方法
+## 🗄️ データベース設計
+```prisma
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // bcryptハッシュ化
+  name      String
+  posts     Post[]
+  comments  Comment[]
+  likes     Like[]
+}
 
-### 1. クローン・インストール
+model Post {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  imageUrl  String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  comments  Comment[]
+  likes     Like[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
+// Comment, Like モデルも同様...
+```
+
+## 🚀 ローカル環境セットアップ
+
+### 必要な環境
+- Node.js 18.x 以上
+- PostgreSQL 14.x 以上
+- npm または yarn
+
+### 1. クローン & インストール
 ```bash
-git clone <repository-url>
-cd my-next-project
+git clone https://github.com/yourusername/blog-app.git
+cd blog-app
 npm install
 ```
 
 ### 2. 環境変数設定
 
-`.env.local`ファイルを作成し、以下の内容を追加してください：
-
+`.env.local` を作成：
 ```env
-# データベース
-DATABASE_URL="postgresql://username:password@localhost:5432/database_name"
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/blog_db"
 
-# JWT（httpOnlyクッキー用）
-JWT_SECRET="your_jwt_secret_key_min_32_chars"
+# JWT Secret (本番環境では32文字以上の強力なキーを使用)
+JWT_SECRET="your-super-secret-jwt-key-min-32-chars"
 
-# Cloudinary
+# Cloudinary (画像アップロード)
 CLOUDINARY_CLOUD_NAME="your_cloud_name"
 CLOUDINARY_API_KEY="your_api_key"
 CLOUDINARY_API_SECRET="your_api_secret"
 
-# Node環境
+# Environment
 NODE_ENV="development"
 ```
 
-### 3. データベース設定
-
+### 3. データベースセットアップ
 ```bash
-# Prismaスキーマ生成
+# Prisma生成
 npx prisma generate
 
-# データベースマイグレーション
+# マイグレーション実行
 npx prisma db push
 
-# Prisma Studio（オプション）
+# (オプション) Prisma Studio起動
 npx prisma studio
 ```
 
-### 4. 開発サーバー実行
-
+### 4. 開発サーバー起動
 ```bash
 npm run dev
 ```
 
-ブラウザで`http://localhost:3000`にアクセスしてください。
+→ http://localhost:3000 にアクセス
 
-## 📱 使用方法
+## 📊 パフォーマンス最適化
 
-1. **ユーザー登録**: `/register`でアカウント作成
-2. **ログイン**: メールアドレスとパスワードでログイン（httpOnlyクッキーが自動設定）
-3. **投稿作成**: ログイン後、新しい記事を作成
-4. **インタラクション**: コメント投稿、いいね、検索などを利用
-5. **設定変更**: 右上からテーマ・言語を変更
+- **画像最適化**: Next.js Image コンポーネント使用
+- **コード分割**: 動的import による遅延読み込み
+- **メモ化**: useCallback, useMemo でレンダリング最適化
+- **データベースクエリ**: Prismaで効率的なクエリ生成
+- **キャッシング**: Next.js の自動キャッシング活用
 
-## 🔐 認証フロー（httpOnlyクッキー方式）
+## 🧪 今後の改善予定
 
+- [ ] ユニットテスト (Jest + React Testing Library)
+- [ ] E2Eテスト (Playwright)
+- [ ] CI/CD パイプライン (GitHub Actions)
+- [ ] WebSocket によるリアルタイム通知
+- [ ] Redis によるセッションキャッシング
+
+## 💡 学んだこと・工夫した点
+
+### 技術面
+- TypeScriptの型システムによる開発効率向上
+- Next.js App Routerの最新機能活用
+- Prisma ORMによる型安全なDB操作
+- httpOnly Cookieによるセキュアな認証実装
+
+### 苦労した点
+**セッション独立性の実装**  
+複数デバイスからの同時ログイン時、トークン管理が課題でした。各ログインごとに固有のsessionIdを付与することで、デバイス間の独立性を確保しました。
+```typescript
+// 各ログインで固有のセッションIDを生成
+const sessionId = crypto.randomUUID();
+const token = jwt.sign({
+  userId: user.id,
+  sessionId: sessionId, // デバイス識別用
+  loginTime: Date.now()
+}, JWT_SECRET);
 ```
-1. ログイン
-   ↓
-2. サーバーがJWTトークンを生成
-   ↓
-3. httpOnly + Secure + SameSite=Strict クッキーで返却
-   ↓
-4. ブラウザが自動的にクッキーを保存
-   ↓
-5. 以降のリクエストで credentials: 'include' で自動送信
-   ↓
-6. ミドルウェアがクッキーからトークンを検証
-```
 
-## 🔧 開発用スクリプト
-
+## 📝 開発スクリプト
 ```bash
-npm run dev          # 開発サーバー実行
-npm run build        # 本番用ビルド
-npm run start        # 本番サーバー実行
+npm run dev          # 開発サーバー起動
+npm run build        # 本番ビルド
+npm run start        # 本番サーバー起動
 npm run lint         # ESLint実行
-npx prisma studio   # Prisma Studio実行
+npx prisma studio   # データベースGUI
 ```
 
-## 📦 主要依存関係
+## 🌐 デプロイ
 
-```json
-{
-  "next": "^14.0.0",
-  "react": "^18.0.0",
-  "prisma": "^5.0.0",
-  "tailwindcss": "^3.0.0",
-  "jsonwebtoken": "^9.0.0",
-  "bcrypt": "^5.0.0",
-  "cloudinary": "^1.0.0"
-}
-```
+**推奨プラットフォーム**: Vercel
 
-## 🚀 デプロイメント
+1. GitHubにプッシュ
+2. Vercelでインポート
+3. 環境変数を設定
+4. 自動デプロイ
 
-### Vercelでのデプロイ
+**データベース**: Supabase / PlanetScale / Railway
 
-1. GitHubにコードをプッシュ
-2. [Vercel](https://vercel.com)でインポート
-3. 環境変数を設定（`JWT_SECRET`は本番環境用の強力なキーを使用）
-4. デプロイ完了
+## 👤 作成者
 
-### 本番環境のセキュリティ設定
-
-- `NODE_ENV="production"`を設定
-- `JWT_SECRET`は最小32文字以上の強力なランダム文字列
-- HTTPSを強制
-- CORS設定の適切な限定
-
-### データベース
-
-- **開発環境**: ローカルPostgreSQL
-- **本番環境**: Railway、PlanetScale、Supabaseなどを推奨
-
-## 🔒 セキュリティベストプラクティス
-
-1. **httpOnlyクッキー**: XSS攻撃からの保護
-2. **入力値検証**: サーバーサイドでの厳格な検証
-3. **レート制限**: ブルートフォース攻撃への対策
-4. **パスワードハッシュ化**: bcryptで安全に暗号化
-5. **CORS設定**: 不正なクロスオリジンリクエストを防止
-6. **ミドルウェア認証**: 保護されたルートへのアクセス制御
-
-## 🤝 コントリビューション
-
-1. プロジェクトをフォーク
-2. Featureブランチを作成 (`git checkout -b feature/AmazingFeature`)
-3. 変更をコミット (`git commit -m 'Add some AmazingFeature'`)
-4. ブランチにプッシュ (`git push origin feature/AmazingFeature`)
-5. プルリクエストを作成
+**名前**: [あなたの名前]  
+**Email**: your.email@example.com  
+**GitHub**: [@yourusername](https://github.com/yourusername)  
+**Portfolio**: [https://your-portfolio.com](https://your-portfolio.com)
 
 ## 📄 ライセンス
 
-このプロジェクトはMITライセンスの下で配布されています。
+MIT License
 
 ---
 
-⭐ このプロジェクトが役に立ちましたら、スターをお願いします！
+**⭐ このプロジェクトが参考になりましたら、スターをお願いします！**
