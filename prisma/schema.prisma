@@ -24,12 +24,13 @@ model User {
   likes         Like[] // このユーザーがいいねした投稿とのリレーション
   comments      Comment[] // このユーザーが作成したコメントとのリレーション
   commentLikes  CommentLike[] // このユーザーがいいねしたコメントとのリレーション
-   loginAttempts     Int?      // 로그인 시도 횟수
-  lastFailedLogin   DateTime? // 마지막 실패한 로그인 시각
-  lockoutUntil      DateTime? // 계정 잠금 해제 시각
-  lastLogin         DateTime? // 마지막 성공한 로그인 시각
-  isActive          Boolean   @default(true) // 계정 활성화 상태
-  @@map("user") // データベーステーブル名を 'user' として明示
+ loginAttempts     Int?      @map("loginAttempts")
+  lastFailedLogin   DateTime? @map("lastFailedLogin")
+  lockoutUntil      DateTime? @map("lockoutUntil")
+  lastLogin         DateTime? @map("lastLogin")
+  isActive          Boolean   @default(true) @map("is_active") 
+
+  @@map("user")
 }
 
 // Post モデルの定義
