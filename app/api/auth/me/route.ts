@@ -1,17 +1,16 @@
 // 📂 app/api/auth/me/route.ts
 
 // Next.jsのAPIルートのためのモジュールをインポートします。
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 
 /**
  * GETリクエストハンドラ
  * 🔒 セキュリティ改善: httpOnlyクッキーからJWTトークンを検証し、ユーザー情報を返します。
  * Authorizationヘッダーの代わりにクッキーを使用することでXSS攻撃を防止します。
- * @param {NextRequest} req - 受信したNext.jsのリクエストオブジェクト
  * @returns {NextResponse} レスポンスオブジェクト
  */
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     // 🔒 統一されたauth.tsのgetCurrentUser関数を使用
     const user = await getCurrentUser();

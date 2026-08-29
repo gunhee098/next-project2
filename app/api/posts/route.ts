@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
         orderBy: orderBy === 'latest' ? { createdAt: 'desc' } : { createdAt: 'asc' },
       });
 
-      posts = findManyPosts.map((post: any) => ({
+      posts = findManyPosts.map((post) => ({
         id: post.id,
         title: post.title,
         content: post.content,

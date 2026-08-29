@@ -72,9 +72,9 @@ export default function EditPost() {
           setImagePreview(data.imageUrl);
         }
         console.log("✅ 投稿データ読み込み完了:", data);
-      } catch (err: any) {
+      } catch (err) {
         console.error("投稿読み込み中にエラーが発生:", err);
-        setError(err.message || dict.fetchPostFail);
+        setError(err instanceof Error ? err.message : dict.fetchPostFail);
         router.replace("/blog");
       } finally {
         setLoading(false);
@@ -224,9 +224,9 @@ export default function EditPost() {
         const errorData = await res.json();
         throw new Error(errorData.error || dict.updateFail);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("🚨 投稿更新または画像アップロード中にエラーが発生:", err);
-      setError(err.message || dict.updateFail);
+      setError(err instanceof Error ? err.message : dict.updateFail);
     } finally {
       setLoading(false);
     }

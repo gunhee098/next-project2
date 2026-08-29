@@ -1,6 +1,6 @@
 // 📂 app/api/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { v2 as cloudinary } from 'cloudinary'; // Cloudinary SDKをインポート
+import { v2 as cloudinary, type UploadApiResponse } from 'cloudinary'; // Cloudinary SDKをインポート
 
 // Cloudinary 設定 (環境変数を使用)
 cloudinary.config({
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
     // Cloudinaryに画像をアップロード
     // Promiseでラップすることで、非同期処理を待機可能にする
-    const result = await new Promise<any>((resolve, reject) => { // upload_streamの返り値の型をanyとして指定
+    const result = await new Promise<UploadApiResponse | undefined>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
         { folder: "nextjs-blog" }, // Cloudinaryのフォルダを指定
         (error, uploadResult) => {

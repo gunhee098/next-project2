@@ -136,9 +136,9 @@ const handleSubmit = async (e: React.FormEvent) => {
 
     router.push("/blog");
     console.log("✅ 投稿作成完了 - ブログ一覧ページへリダイレクト");
-  } catch (err: any) {
+  } catch (err) {
     console.error("🚨 投稿作成または画像アップロード中にエラー:", err);
-    setError(err.message || dict.postFail);
+    setError(err instanceof Error ? err.message : dict.postFail);
   } finally {
     setLoading(false);
   }

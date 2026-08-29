@@ -1,6 +1,6 @@
 // 📂 app/components/ShareButton.tsx
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 
 // Postデータの型定義を追加
 interface Post {

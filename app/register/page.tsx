@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation"; // ルーティング管理のためのuseRouterをインポートします。
+import Link from "next/link"; // Next.jsのLinkコンポーネントをインポートします。
 import { useLang } from "@/components/LanguageProvider"; // LanguageProviderから言語コンテキストフックをインポートします。
 import en from "@/locales/en.json"; // 英語の辞書ファイルをインポートします。
 import ja from "@/locales/ja.json"; // 日本語の辞書ファイルをインポートします。
@@ -195,14 +196,14 @@ export default function RegisterPage() {
           theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
         }`}>
           {dict.alreadyAccountPrompt}{" "}
-          <a
+          <Link
             href="/"
             className={`font-bold hover:underline ${
               theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-500'
             }`}
           >
             {dict.loginLink}
-          </a>
+          </Link>
         </p>
       </div>
     </div>

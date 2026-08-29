@@ -151,8 +151,8 @@ model Post {
 
 ### 1. クローン & インストール
 ```bash
-git clone https://github.com/yourusername/blog-app.git
-cd blog-app
+git clone https://github.com/gunhee098/next-project2.git
+cd next-project2
 npm install
 ```
 
@@ -253,13 +253,13 @@ npx prisma studio   # データベースGUI
 
 ## 👤 作成者
 
-**名前**: [Geonhee]  
-**Email**: imgh098@gmail.com 
-**GitHub**: [@gunhee098](https://github.com/gunhee098/next-project2.git)  
-**Portfolio**: [https://next-project2-rosy.vercel.app]
+**名前**: Geonhee  
+**Email**: imgh098@gmail.com  
+**GitHub**: [@gunhee098](https://github.com/gunhee098)  
+**Portfolio**: [https://next-project2-rosy.vercel.app](https://next-project2-rosy.vercel.app)
 
 ## 📄 ライセンス
-
+  
 MIT License
 
 ---

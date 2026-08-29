@@ -2,7 +2,7 @@
 
 "use client"; // クライアントコンポーネントとして指定します。
 
-import React, { useEffect, useState, FormEvent, useCallback, use, type ReactNode } from "react";
+import React, { useEffect, useState, FormEvent, useCallback, use } from "react";
 import { useRouter } from "next/navigation"; // Next.jsのルーターフックをインポートします。
 import Link from "next/link"; // Next.jsのLinkコンポーネントをインポートします。
 import { useAuth } from "@/hooks/useAuth"; // useAuth フックをインポートします。
@@ -78,7 +78,7 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
   const [commentLoading, setCommentLoading] = useState<boolean>(false);
 
   // useAuth フックから認証されたユーザー情報と認証ローディング状態を取得します。
-  const { user, loading: authLoading, checkAuth } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter(); // Next.jsルーターのインスタンス
 
   // ✅ useLang フックから言語設定を取得し、辞書を選択します。
