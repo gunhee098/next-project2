@@ -253,10 +253,10 @@ npx prisma studio   # データベースGUI
 
 ## 👤 作成者
 
-**名前**: [あなたの名前]  
-**Email**: your.email@example.com  
-**GitHub**: [@yourusername](https://github.com/yourusername)  
-**Portfolio**: [https://your-portfolio.com](https://your-portfolio.com)
+**名前**: [Geonhee]  
+**Email**: imgh098@gmail.com 
+**GitHub**: [@gunhee098](https://github.com/gunhee098/next-project2.git)  
+**Portfolio**: [https://next-project2-rosy.vercel.app]
 
 ## 📄 ライセンス
 
