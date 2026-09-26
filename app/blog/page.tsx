@@ -214,20 +214,18 @@ export default function BlogPage() {
   }
 
   return (
-    <div className={`min-h-screen transition-all duration-300 ${
-      theme === 'dark' 
-        ? 'dark bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' 
-        : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'
+    <div className={`min-h-screen transition-colors duration-300 ${
+      theme === 'dark' ? 'dark bg-paper-dark' : 'bg-paper'
     }`}>
       
       {/* モバイル用ハンバーガーボタン */}
       <button
         onClick={toggleMobileMenu}
-        className={`md:hidden fixed top-4 left-4 z-50 p-3 rounded-xl transition-all duration-300 ${
+        className={`md:hidden fixed top-4 left-4 z-50 p-3 rounded-sm border border-dashed transition-colors duration-300 ${
           theme === 'dark'
-            ? 'bg-gray-800/90 text-white border border-gray-700/50'
-            : 'bg-white/90 text-gray-900 border border-gray-200/50'
-        } backdrop-blur-sm shadow-lg`}
+            ? 'bg-card-dark/90 text-ink-dark border-ink-dark/30'
+            : 'bg-card/90 text-ink border-ink/30'
+        } shadow-lg`}
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           {isMobileMenuOpen ? (
@@ -247,10 +245,10 @@ export default function BlogPage() {
       )}
 
         {/* サイドバー - モバイル対応 */}
-        <aside className={`fixed left-0 top-0 h-full transition-all duration-300 ${
+        <aside className={`fixed left-0 top-0 h-full transition-colors duration-300 ${
           theme === 'dark'
-            ? 'bg-gray-900/95 backdrop-blur-xl border-r border-gray-700/50'
-            : 'bg-white/95 backdrop-blur-xl border-r border-gray-200/50'
+            ? 'bg-paper-dark border-r border-dashed border-ink-dark/20'
+            : 'bg-paper border-r border-dashed border-ink/20'
         } ${
           // モバイルでは条件付き表示、デスクトップでは常時表示 + z-index修正
           isMobileMenuOpen 
@@ -261,30 +259,20 @@ export default function BlogPage() {
             
             {/* タイトル */}
             <div className="mb-6 md:mb-8 mt-12 md:mt-0">
-              <h1 className={`text-xl md:text-2xl font-bold bg-gradient-to-r ${
-                theme === 'dark'
-                  ? 'from-blue-400 to-purple-400'
-                  : 'from-blue-600 to-purple-600'
-              } bg-clip-text text-transparent`}>
+              <h1 className="font-display text-xl md:text-2xl font-semibold">
                 Blog Posts
               </h1>
             </div>
 
             {/* ユーザー情報 */}
             {user && (
-              <div className={`mb-4 md:mb-6 p-3 md:p-4 rounded-2xl ${
-                theme === 'dark'
-                  ? 'bg-gray-800/50 border border-gray-700/30'
-                  : 'bg-white/60 border border-gray-200/30'
-              }`}>
-                <p className={`text-xs md:text-sm font-medium ${
-                  theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+              <div className="mb-4 md:mb-6 archive-card p-3 md:p-4">
+                <p className={`font-mono text-xs md:text-sm ${
+                  theme === 'dark' ? 'text-ink-muted-dark' : 'text-ink-muted'
                 }`}>
                   {dict.welcome}
                 </p>
-                <p className={`text-base md:text-lg font-semibold ${
-                  theme === 'dark' ? 'text-white' : 'text-gray-900'
-                }`}>
+                <p className="font-display text-base md:text-lg font-semibold">
                   {user.name}さん！
                 </p>
               </div>
@@ -293,7 +281,7 @@ export default function BlogPage() {
             {/* ログアウトボタン - タッチ問題解決 */}
             <button
               onClick={handleLogout}
-              className="relative w-full px-3 md:px-4 py-2 md:py-3 rounded-xl bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm md:text-base font-medium hover:from-red-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl touch-manipulation z-10"
+              className="relative w-full px-3 md:px-4 py-2 md:py-3 rounded-sm border border-stamp text-stamp text-sm md:text-base font-medium hover:bg-stamp hover:text-paper transition-colors duration-200 touch-manipulation z-10"
               style={{ 
                 WebkitTapHighlightColor: 'transparent',
                 touchAction: 'manipulation'
@@ -312,31 +300,29 @@ export default function BlogPage() {
           <div className="flex justify-end items-center space-x-2 md:space-x-4">
             
             {/* 言語切り替えボタン */}
-            <div className={`inline-flex rounded-xl overflow-hidden shadow-lg ${
-              theme === 'dark'
-                ? 'bg-gray-800/80 backdrop-blur-sm border border-gray-700/50'
-                : 'bg-white/80 backdrop-blur-sm border border-gray-200/50'
+            <div className={`inline-flex rounded-sm overflow-hidden border border-dashed ${
+              theme === 'dark' ? 'border-ink-dark/30 bg-card-dark/60' : 'border-ink/30 bg-card/60'
             }`}>
               <button
                 onClick={() => setLang("en")}
-                className={`px-2 md:px-4 py-1 md:py-2 text-sm md:text-base font-medium transition-all duration-200 ${
+                className={`px-2 md:px-4 py-1 md:py-2 text-sm md:text-base font-mono transition-colors duration-200 ${
                   lang === "en"
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                    ? 'bg-stamp text-paper'
                     : theme === 'dark'
-                      ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                      ? 'text-ink-muted-dark hover:text-ink-dark hover:bg-card-dark'
+                      : 'text-ink-muted hover:text-ink hover:bg-card'
                 }`}
               >
                 EN
               </button>
               <button
                 onClick={() => setLang("ja")}
-                className={`px-2 md:px-4 py-1 md:py-2 text-sm md:text-base font-medium transition-all duration-200 ${
+                className={`px-2 md:px-4 py-1 md:py-2 text-sm md:text-base font-mono transition-colors duration-200 ${
                   lang === "ja"
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                    ? 'bg-stamp text-paper'
                     : theme === 'dark'
-                      ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                      ? 'text-ink-muted-dark hover:text-ink-dark hover:bg-card-dark'
+                      : 'text-ink-muted hover:text-ink hover:bg-card'
                 }`}
               >
                 JP
@@ -354,7 +340,7 @@ export default function BlogPage() {
           <div className="mb-6 md:mb-8 text-center">
             <button
               onClick={() => router.push("/blog/new")}
-              className="inline-flex items-center px-4 md:px-8 py-3 md:py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm md:text-base font-semibold rounded-2xl hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-xl hover:shadow-2xl"
+              className="inline-flex items-center px-4 md:px-8 py-3 md:py-4 bg-stamp text-paper text-sm md:text-base font-display font-semibold rounded-sm hover:bg-stamp/90 transition-colors duration-200 shadow-lg"
             >
               <svg className="w-4 md:w-5 h-4 md:h-5 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -364,11 +350,7 @@ export default function BlogPage() {
           </div>
 
           {/* 検索・フィルター部分（モバイル対応） */}
-          <div className={`mb-6 md:mb-8 p-4 md:p-6 rounded-2xl ${
-            theme === 'dark'
-              ? 'bg-gray-800/50 backdrop-blur-sm border border-gray-700/50'
-              : 'bg-white/70 backdrop-blur-sm border border-gray-200/50'
-          } shadow-xl`}>
+          <div className="mb-6 md:mb-8 archive-card p-4 md:p-6">
             
             {/* 検索フィールド */}
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4 items-stretch sm:items-center justify-center mb-4">
@@ -376,11 +358,11 @@ export default function BlogPage() {
                 <input
                   type="text"
                   placeholder={dict.searchPlaceholder}
-                  className={`w-full px-3 md:px-4 py-2 md:py-3 pl-10 md:pl-12 text-sm md:text-base rounded-xl border transition-all duration-200 ${
+                  className={`w-full px-3 md:px-4 py-2 md:py-3 pl-10 md:pl-12 text-sm md:text-base rounded-sm border transition-colors duration-200 bg-transparent focus:outline-none ${
                     theme === 'dark'
-                      ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20'
-                      : 'bg-white/80 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
-                  } focus:outline-none`}
+                      ? 'border-ink-dark/30 text-ink-dark placeholder-ink-muted-dark focus:border-stamp'
+                      : 'border-ink/30 text-ink placeholder-ink-muted focus:border-stamp'
+                  }`}
                   value={search}
                   onChange={handleSearchChange}
                   onKeyPress={(e) => {
@@ -390,7 +372,7 @@ export default function BlogPage() {
                   }}
                 />
                 <svg className={`absolute left-3 md:left-4 top-1/2 transform -translate-y-1/2 w-4 md:w-5 h-4 md:h-5 ${
-                  theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                  theme === 'dark' ? 'text-ink-muted-dark' : 'text-ink-muted'
                 }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -398,7 +380,7 @@ export default function BlogPage() {
               
               <button
                 onClick={handleSearch}
-                className="px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm md:text-base font-medium rounded-xl hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                className="px-4 md:px-6 py-2 md:py-3 bg-archive text-paper text-sm md:text-base font-medium rounded-sm hover:bg-archive/90 transition-colors duration-200 shadow-lg"
               >
                 {dict.search}
               </button>
@@ -409,10 +391,10 @@ export default function BlogPage() {
               {search && (
                 <button
                   onClick={handleShowAll}
-                  className={`px-3 md:px-4 py-2 text-sm md:text-base rounded-xl font-medium transition-all duration-200 ${
+                  className={`px-3 md:px-4 py-2 text-sm md:text-base rounded-sm font-medium border transition-colors duration-200 ${
                     theme === 'dark'
-                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300 hover:text-gray-900'
+                      ? 'border-ink-dark/30 text-ink-muted-dark hover:bg-card-dark hover:text-ink-dark'
+                      : 'border-ink/30 text-ink-muted hover:bg-card hover:text-ink'
                   }`}
                 >
                   {dict.showAll}
@@ -421,12 +403,12 @@ export default function BlogPage() {
               
               <button
                 onClick={() => handleSortChange("latest")}
-                className={`px-3 md:px-4 py-2 text-sm md:text-base rounded-xl font-medium transition-all duration-200 ${
+                className={`px-3 md:px-4 py-2 text-sm md:text-base rounded-sm font-medium border transition-colors duration-200 ${
                   sortOrder === "latest"
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                    ? 'bg-stamp text-paper border-stamp'
                     : theme === 'dark'
-                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      ? 'border-ink-dark/30 text-ink-muted-dark hover:bg-card-dark'
+                      : 'border-ink/30 text-ink-muted hover:bg-card'
                 }`}
               >
                 {dict.latest}
@@ -434,12 +416,12 @@ export default function BlogPage() {
               
               <button
                 onClick={() => handleSortChange("oldest")}
-                className={`px-3 md:px-4 py-2 text-sm md:text-base rounded-xl font-medium transition-all duration-200 ${
+                className={`px-3 md:px-4 py-2 text-sm md:text-base rounded-sm font-medium border transition-colors duration-200 ${
                   sortOrder === "oldest"
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                    ? 'bg-stamp text-paper border-stamp'
                     : theme === 'dark'
-                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      ? 'border-ink-dark/30 text-ink-muted-dark hover:bg-card-dark'
+                      : 'border-ink/30 text-ink-muted hover:bg-card'
                 }`}
               >
                 {dict.oldest}
@@ -463,21 +445,16 @@ export default function BlogPage() {
               posts.map((post) => (
                 <article
                   key={post.id}
-                  className={`group relative overflow-hidden rounded-2xl transition-all duration-300 hover:transform hover:scale-[1.01] md:hover:scale-[1.02] ${
-                    theme === 'dark'
-                      ? 'bg-gray-800/60 backdrop-blur-sm border border-gray-700/50 hover:bg-gray-800/80 hover:border-gray-600/50'
-                      : 'bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-white/90 hover:border-gray-300/50'
-                  } shadow-lg hover:shadow-2xl`}
+                  className="archive-card group relative overflow-hidden transition-transform duration-300 hover:-translate-y-0.5"
                 >
                   {/* 投稿画像 */}
                   {post.imageUrl && (
-                    <div className="relative h-36 md:h-48 overflow-hidden">
+                    <div className="relative h-36 md:h-48 overflow-hidden border-b border-dashed border-ink/20 dark:border-ink-dark/20">
                       <img
                         src={post.imageUrl}
                         alt={post.title}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        className="w-full h-full object-cover grayscale-[15%] transition-transform duration-300 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                     </div>
                   )}
 
@@ -488,36 +465,30 @@ export default function BlogPage() {
                     <div className="flex items-start justify-between mb-3 md:mb-4">
                       <div className="flex-1 min-w-0">
                         {/* タイトル */}
-                        <h2 className={`text-lg md:text-xl font-bold mb-2 line-clamp-2 ${
-                          theme === 'dark' ? 'text-white' : 'text-gray-900'
-                        }`}>
+                        <h2 className="font-display text-lg md:text-xl font-semibold mb-2 line-clamp-2">
                           <Link 
                             href={`/blog/${post.id}`}
-                            className="hover:text-blue-500 transition-colors duration-200"
+                            className="hover:text-stamp transition-colors duration-200"
                           >
                             {post.title}
                           </Link>
                         </h2>
                         
-                        {/* ユーザー情報 */}
+                        {/* ユーザー情報：スタンプ風の日付ラベル */}
                         <div className="flex items-center space-x-2 mb-3">
-                          <div className={`w-6 md:w-8 h-6 md:h-8 rounded-full flex items-center justify-center ${
-                            theme === 'dark'
-                              ? 'bg-gradient-to-r from-blue-500 to-purple-500'
-                              : 'bg-gradient-to-r from-blue-400 to-purple-400'
-                          }`}>
-                            <span className="text-white text-xs md:text-sm font-semibold">
+                          <div className="w-6 md:w-8 h-6 md:h-8 rounded-full flex items-center justify-center border border-ink/30 dark:border-ink-dark/30">
+                            <span className="font-mono text-xs md:text-sm font-bold">
                               {post.username.charAt(0).toUpperCase()}
                             </span>
                           </div>
                           <div className="min-w-0">
                             <p className={`text-xs md:text-sm font-medium truncate ${
-                              theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+                              theme === 'dark' ? 'text-ink-dark' : 'text-ink'
                             }`}>
                               {post.username}
                             </p>
-                            <p className={`text-xs ${
-                              theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                            <p className={`font-mono text-xs ${
+                              theme === 'dark' ? 'text-ink-muted-dark' : 'text-ink-muted'
                             }`}>
                               {formatCreatedAt(post.createdAt)}
                             </p>
@@ -530,10 +501,10 @@ export default function BlogPage() {
                         <div className="flex space-x-1 md:space-x-2 ml-2 md:ml-4 flex-shrink-0">
                           <button
                             onClick={() => router.push(`/blog/${post.id}/edit`)}
-                            className={`p-1.5 md:p-2 rounded-lg transition-all duration-200 ${
+                            className={`p-1.5 md:p-2 rounded-sm transition-colors duration-200 ${
                               theme === 'dark'
-                                ? 'text-gray-400 hover:text-blue-400 hover:bg-gray-700/50'
-                                : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50'
+                                ? 'text-ink-muted-dark hover:text-archive hover:bg-card-dark'
+                                : 'text-ink-muted hover:text-archive hover:bg-card'
                             }`}
                             title={dict.edit}
                           >
@@ -543,10 +514,10 @@ export default function BlogPage() {
                           </button>
                           <button
                             onClick={() => handleDeletePost(post.id)}
-                            className={`p-1.5 md:p-2 rounded-lg transition-all duration-200 ${
+                            className={`p-1.5 md:p-2 rounded-sm transition-colors duration-200 ${
                               theme === 'dark'
-                                ? 'text-gray-400 hover:text-red-400 hover:bg-gray-700/50'
-                                : 'text-gray-500 hover:text-red-600 hover:bg-red-50'
+                                ? 'text-ink-muted-dark hover:text-stamp hover:bg-card-dark'
+                                : 'text-ink-muted hover:text-stamp hover:bg-card'
                             }`}
                             title={dict.delete}
                           >
@@ -559,9 +530,7 @@ export default function BlogPage() {
                     </div>
 
                     {/* 投稿内容プレビュー */}
-                    <div className={`mb-3 md:mb-4 ${
-                      theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                    }`}>
+                    <div className={theme === 'dark' ? 'text-ink-muted-dark' : 'text-ink-muted'}>
                       <p className="line-clamp-3 text-xs md:text-sm leading-relaxed">
                         {post.content.length > 100 
                           ? `${post.content.substring(0, 100)}...`
@@ -571,32 +540,24 @@ export default function BlogPage() {
                     </div>
 
                     {/* フッター：いいね・コメント数・詳細リンク */}
-                    <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-gray-200/20">
+                    <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-dashed border-ink/20 dark:border-ink-dark/20 mt-3 md:mt-4">
                       
-                      {/* いいね・コメント数 */}
+                      {/* いいね・コメント数：貸出印風バッジ */}
                       <div className="flex items-center space-x-3 md:space-x-4">
                         <div className="flex items-center space-x-1">
-                          <svg className={`w-3 md:w-4 h-3 md:h-4 ${
-                            theme === 'dark' ? 'text-red-400' : 'text-red-500'
-                          }`} fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-3 md:w-4 h-3 md:h-4 text-stamp" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
                           </svg>
-                          <span className={`text-xs md:text-sm font-medium ${
-                            theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                          }`}>
+                          <span className="font-mono text-xs md:text-sm font-medium">
                             {post._count.likes}
                           </span>
                         </div>
                         
                         <div className="flex items-center space-x-1">
-                          <svg className={`w-3 md:w-4 h-3 md:h-4 ${
-                            theme === 'dark' ? 'text-blue-400' : 'text-blue-500'
-                          }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3 md:w-4 h-3 md:h-4 text-archive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                           </svg>
-                          <span className={`text-xs md:text-sm font-medium ${
-                            theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                          }`}>
+                          <span className="font-mono text-xs md:text-sm font-medium">
                             {post._count.comments}
                           </span>
                         </div>
@@ -605,11 +566,7 @@ export default function BlogPage() {
                       {/*  詳細リンク */}
                       <Link
                         href={`/blog/${post.id}`}
-                        className={`inline-flex items-center space-x-1 text-xs md:text-sm font-medium transition-colors duration-200 ${
-                          theme === 'dark'
-                            ? 'text-blue-400 hover:text-blue-300'
-                            : 'text-blue-600 hover:text-blue-500'
-                        }`}
+                        className="inline-flex items-center space-x-1 text-xs md:text-sm font-medium text-stamp hover:text-stamp/80 transition-colors duration-200"
                       >
                         <span>{dict.readMore}</span>
                         <svg className="w-3 md:w-4 h-3 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

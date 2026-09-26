@@ -71,40 +71,36 @@ export default function RegisterPage() {
   };
 
   return (
-    // 最上位のコンテナ。テーマ状態に応じて背景グラデーションとテキスト色を調整
-    <div className={`flex items-center justify-center min-h-screen transition-all duration-300 ${
-      theme === 'dark'
-        ? 'dark bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'
-        : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'
+    // 最上位のコンテナ。ヴィンテージ・アーカイブテーマの背景色を適用
+    <div className={`flex items-center justify-center min-h-screen transition-colors duration-300 ${
+      theme === 'dark' ? 'dark bg-paper-dark' : 'bg-paper'
     }`}>
       {/* 言語切り替えとテーマトグルボタンのコンテナ */}
       <div className="absolute top-6 right-6 flex items-center space-x-4">
         {/* 言語選択ボタン */}
-        <div className={`inline-flex rounded-xl overflow-hidden shadow-lg ${
-          theme === 'dark'
-            ? 'bg-gray-800/80 backdrop-blur-sm border border-gray-700/50'
-            : 'bg-white/80 backdrop-blur-sm border border-gray-200/50'
+        <div className={`inline-flex rounded-sm overflow-hidden border border-dashed ${
+          theme === 'dark' ? 'border-ink-dark/30 bg-card-dark/60' : 'border-ink/30 bg-card/60'
         }`}>
           <button
             onClick={() => setLang("en")}
-            className={`px-4 py-2 font-medium transition-all duration-200 ${
+            className={`px-4 py-2 font-mono text-sm transition-colors duration-200 ${
               lang === "en"
-                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                ? 'bg-stamp text-paper'
                 : theme === 'dark'
-                  ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                  ? 'text-ink-muted-dark hover:text-ink-dark hover:bg-card-dark'
+                  : 'text-ink-muted hover:text-ink hover:bg-card'
             }`}
           >
             EN
           </button>
           <button
             onClick={() => setLang("ja")}
-            className={`px-4 py-2 font-medium transition-all duration-200 ${
+            className={`px-4 py-2 font-mono text-sm transition-colors duration-200 ${
               lang === "ja"
-                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                ? 'bg-stamp text-paper'
                 : theme === 'dark'
-                  ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                  ? 'text-ink-muted-dark hover:text-ink-dark hover:bg-card-dark'
+                  : 'text-ink-muted hover:text-ink hover:bg-card'
             }`}
           >
             JP
@@ -114,27 +110,21 @@ export default function RegisterPage() {
         <ThemeToggleButton />
       </div>
 
-      {/* フォームカード */}
-      <div className={`p-8 rounded-2xl shadow-2xl w-full max-w-md transition-all duration-300 ${
-        theme === 'dark'
-          ? 'bg-gray-800/60 border border-gray-700/50'
-          : 'bg-white/80 border border-gray-200/50'
+      {/* フォームカード：図書館の索引カード風 */}
+      <div className={`archive-card p-8 w-full max-w-md shadow-lg ${
+        theme === 'dark' ? 'shadow-black/30' : 'shadow-ink/10'
       }`}>
-        <h2 className={`text-3xl font-bold mb-8 text-center bg-gradient-to-r ${
-          theme === 'dark'
-            ? 'from-blue-400 to-purple-400'
-            : 'from-blue-600 to-purple-600'
-        } bg-clip-text text-transparent`}>
+        <h2 className="font-display text-3xl font-semibold mb-8 text-center">
           {dict.registerTitle}
         </h2>
 
         {/* メッセージ表示領域 (message stateに基づいて条件的に表示) */}
         {message && (
           <div
-            className={`mb-6 px-4 py-3 rounded-xl text-center transition-all duration-200 ${
-              message.type === "success" 
-                ? 'bg-green-100 text-green-700 border border-green-200' 
-                : 'bg-red-100 text-red-700 border border-red-200'
+            className={`mb-6 px-4 py-3 rounded-sm text-center border-l-4 transition-colors duration-200 ${
+              message.type === "success"
+                ? 'border-archive bg-archive/10 text-archive'
+                : 'border-stamp bg-stamp/10 text-stamp'
             }`}
             role="alert" // スクリーンリーダーのためのロール
           >
@@ -149,11 +139,11 @@ export default function RegisterPage() {
               placeholder={dict.namePlaceholder}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className={`w-full px-5 py-3 rounded-xl border transition-all duration-200 ${
+              className={`w-full px-5 py-3 rounded-sm border transition-colors duration-200 bg-transparent focus:outline-none ${
                 theme === 'dark'
-                  ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20'
-                  : 'bg-white/80 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
-              } focus:outline-none`}
+                  ? 'border-ink-dark/30 text-ink-dark placeholder-ink-muted-dark focus:border-stamp'
+                  : 'border-ink/30 text-ink placeholder-ink-muted focus:border-stamp'
+              }`}
               required
             />
           </div>
@@ -163,11 +153,11 @@ export default function RegisterPage() {
               placeholder={dict.emailPlaceholder}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`w-full px-5 py-3 rounded-xl border transition-all duration-200 ${
+              className={`w-full px-5 py-3 rounded-sm border transition-colors duration-200 bg-transparent focus:outline-none ${
                 theme === 'dark'
-                  ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20'
-                  : 'bg-white/80 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
-              } focus:outline-none`}
+                  ? 'border-ink-dark/30 text-ink-dark placeholder-ink-muted-dark focus:border-stamp'
+                  : 'border-ink/30 text-ink placeholder-ink-muted focus:border-stamp'
+              }`}
               required
             />
           </div>
@@ -177,30 +167,28 @@ export default function RegisterPage() {
               placeholder={dict.passwordPlaceholder}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={`w-full px-5 py-3 rounded-xl border transition-all duration-200 ${
+              className={`w-full px-5 py-3 rounded-sm border transition-colors duration-200 bg-transparent focus:outline-none ${
                 theme === 'dark'
-                  ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20'
-                  : 'bg-white/80 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
-              } focus:outline-none`}
+                  ? 'border-ink-dark/30 text-ink-dark placeholder-ink-muted-dark focus:border-stamp'
+                  : 'border-ink/30 text-ink placeholder-ink-muted focus:border-stamp'
+              }`}
               required
             />
           </div>
           <button
             type="submit"
-            className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="w-full px-6 py-3 bg-stamp text-paper font-display font-semibold rounded-sm hover:bg-stamp/90 transition-colors duration-200"
           >
             {dict.registerButton}
           </button>
         </form>
         <p className={`text-center mt-6 text-sm ${
-          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+          theme === 'dark' ? 'text-ink-muted-dark' : 'text-ink-muted'
         }`}>
           {dict.alreadyAccountPrompt}{" "}
           <Link
             href="/"
-            className={`font-bold hover:underline ${
-              theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-500'
-            }`}
+            className="font-bold hover:underline transition-colors duration-200 text-stamp hover:text-stamp/80"
           >
             {dict.loginLink}
           </Link>

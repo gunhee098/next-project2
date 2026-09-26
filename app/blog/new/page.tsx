@@ -144,40 +144,36 @@ const handleSubmit = async (e: React.FormEvent) => {
   }
 };
   return (
-    // 最上位のコンテナ - グラデーション背景
-    <div className={`min-h-screen transition-all duration-300 ${
-      theme === 'dark'
-        ? 'dark bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'
-        : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'
+    // 最上位のコンテナ - ヴィンテージ・アーカイブテーマ背景
+    <div className={`min-h-screen transition-colors duration-300 ${
+      theme === 'dark' ? 'dark bg-paper-dark' : 'bg-paper'
     }`}>
       {/* 言語切り替えとテーマトグルボタンのコンテナ */}
       <div className="absolute top-6 right-6 flex items-center space-x-4">
         {/* 言語選択ボタン */}
-        <div className={`inline-flex rounded-xl overflow-hidden shadow-lg ${
-          theme === 'dark'
-            ? 'bg-gray-800/80 backdrop-blur-sm border border-gray-700/50'
-            : 'bg-white/80 backdrop-blur-sm border border-gray-200/50'
+        <div className={`inline-flex rounded-sm overflow-hidden border border-dashed ${
+          theme === 'dark' ? 'border-ink-dark/30 bg-card-dark/60' : 'border-ink/30 bg-card/60'
         }`}>
           <button
             onClick={() => setLang("en")}
-            className={`px-4 py-2 font-medium transition-all duration-200 ${
+            className={`px-4 py-2 font-mono text-sm transition-colors duration-200 ${
               lang === "en"
-                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                ? 'bg-stamp text-paper'
                 : theme === 'dark'
-                  ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                  ? 'text-ink-muted-dark hover:text-ink-dark hover:bg-card-dark'
+                  : 'text-ink-muted hover:text-ink hover:bg-card'
             }`}
           >
             EN
           </button>
           <button
             onClick={() => setLang("ja")}
-            className={`px-4 py-2 font-medium transition-all duration-200 ${
+            className={`px-4 py-2 font-mono text-sm transition-colors duration-200 ${
               lang === "ja"
-                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                ? 'bg-stamp text-paper'
                 : theme === 'dark'
-                  ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                  ? 'text-ink-muted-dark hover:text-ink-dark hover:bg-card-dark'
+                  : 'text-ink-muted hover:text-ink hover:bg-card'
             }`}
           >
             JP
@@ -189,25 +185,19 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       {/* メインコンテンツコンテナ */}
       <div className="flex items-center justify-center min-h-screen pt-20 pb-8 px-4">
-        <div className={`p-8 rounded-2xl shadow-2xl w-full max-w-2xl transition-all duration-300 ${
-          theme === 'dark'
-            ? 'bg-gray-800/60 border border-gray-700/50'
-            : 'bg-white/80 border border-gray-200/50'
+        <div className={`archive-card p-8 w-full max-w-2xl shadow-lg ${
+          theme === 'dark' ? 'shadow-black/30' : 'shadow-ink/10'
         }`}>
           {/* ページタイトル (辞書から取得) */}
-          <h1 className={`text-3xl font-bold mb-8 text-center bg-gradient-to-r ${
-            theme === 'dark'
-              ? 'from-blue-400 to-purple-400'
-              : 'from-blue-600 to-purple-600'
-          } bg-clip-text text-transparent`}>
+          <h1 className="font-display text-3xl font-semibold mb-8 text-center">
             {dict.newPostTitle}
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* タイトル入力フィールド */}
             <div>
-              <label htmlFor="title" className={`block text-sm font-medium mb-2 ${
-                theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+              <label htmlFor="title" className={`block font-mono text-sm mb-2 ${
+                theme === 'dark' ? 'text-ink-muted-dark' : 'text-ink-muted'
               }`}>
                 {dict.titlePlaceholder}
               </label>
@@ -218,19 +208,19 @@ const handleSubmit = async (e: React.FormEvent) => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
-                className={`w-full px-5 py-3 rounded-xl border transition-all duration-200 ${
+                className={`w-full px-5 py-3 rounded-sm border transition-colors duration-200 bg-transparent focus:outline-none disabled:opacity-50 ${
                   theme === 'dark'
-                    ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20'
-                    : 'bg-white/80 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
-                } focus:outline-none disabled:opacity-50`}
+                    ? 'border-ink-dark/30 text-ink-dark placeholder-ink-muted-dark focus:border-stamp'
+                    : 'border-ink/30 text-ink placeholder-ink-muted focus:border-stamp'
+                }`}
                 disabled={loading}
               />
             </div>
 
             {/* 内容入力テキストエリア */}
             <div>
-              <label htmlFor="content" className={`block text-sm font-medium mb-2 ${
-                theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+              <label htmlFor="content" className={`block font-mono text-sm mb-2 ${
+                theme === 'dark' ? 'text-ink-muted-dark' : 'text-ink-muted'
               }`}>
                 {dict.contentPlaceholder}
               </label>
@@ -241,19 +231,19 @@ const handleSubmit = async (e: React.FormEvent) => {
                 onChange={(e) => setContent(e.target.value)}
                 required
                 rows={8}
-                className={`w-full px-5 py-3 rounded-xl border transition-all duration-200 resize-none ${
+                className={`w-full px-5 py-3 rounded-sm border transition-colors duration-200 resize-none bg-transparent focus:outline-none disabled:opacity-50 ${
                   theme === 'dark'
-                    ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20'
-                    : 'bg-white/80 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
-                } focus:outline-none disabled:opacity-50`}
+                    ? 'border-ink-dark/30 text-ink-dark placeholder-ink-muted-dark focus:border-stamp'
+                    : 'border-ink/30 text-ink placeholder-ink-muted focus:border-stamp'
+                }`}
                 disabled={loading}
               />
             </div>
 
             {/* 画像アップロードフィールド */}
             <div>
-              <label htmlFor="image" className={`block text-sm font-medium mb-2 ${
-                theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+              <label htmlFor="image" className={`block font-mono text-sm mb-2 ${
+                theme === 'dark' ? 'text-ink-muted-dark' : 'text-ink-muted'
               }`}>
                 {lang === "ja" ? "画像 (オプション)" : "Image (Optional)"}
               </label>
@@ -263,19 +253,19 @@ const handleSubmit = async (e: React.FormEvent) => {
                 id="image"
                 accept="image/*"
                 onChange={handleFileChange}
-                className={`w-full px-5 py-3 rounded-xl border transition-all duration-200 ${
+                className={`w-full px-5 py-3 rounded-sm border transition-colors duration-200 bg-transparent focus:outline-none disabled:opacity-50 ${
                   theme === 'dark'
-                    ? 'bg-gray-700/50 border-gray-600 text-white file:bg-blue-600 file:text-white file:border-0 file:rounded-lg file:px-4 file:py-2 file:mr-4 hover:file:bg-blue-700'
-                    : 'bg-white/80 border-gray-300 text-gray-900 file:bg-blue-50 file:text-blue-700 file:border-0 file:rounded-lg file:px-4 file:py-2 file:mr-4 hover:file:bg-blue-100'
-                } focus:outline-none disabled:opacity-50`}
+                    ? 'border-ink-dark/30 text-ink-dark file:bg-stamp file:text-paper file:border-0 file:rounded-sm file:px-4 file:py-2 file:mr-4 hover:file:bg-stamp/90'
+                    : 'border-ink/30 text-ink file:bg-stamp file:text-paper file:border-0 file:rounded-sm file:px-4 file:py-2 file:mr-4 hover:file:bg-stamp/90'
+                }`}
                 disabled={loading}
               />
               
               {/* 画像プレビュー */}
               {imagePreview && (
                 <div className="mt-4">
-                  <p className={`text-sm mb-2 ${
-                    theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                  <p className={`font-mono text-sm mb-2 ${
+                    theme === 'dark' ? 'text-ink-muted-dark' : 'text-ink-muted'
                   }`}>
                     {lang === "ja" ? "画像プレビュー" : "Image Preview"}:
                   </p>
@@ -283,13 +273,13 @@ const handleSubmit = async (e: React.FormEvent) => {
                     <img 
                       src={imagePreview} 
                       alt={lang === "ja" ? "画像プレビュー" : "Image Preview"} 
-                      className="max-w-xs h-auto rounded-xl shadow-lg border-2 border-gray-200 dark:border-gray-600" 
+                      className="max-w-xs h-auto rounded-sm shadow-lg border border-dashed border-ink/30 dark:border-ink-dark/30" 
                     />
                     {/* X削除ボタン */}
                     <button
                       type="button"
                       onClick={handleImageCancel}
-                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors duration-200 shadow-lg"
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-stamp hover:bg-stamp/90 text-paper rounded-full flex items-center justify-center text-sm font-bold transition-colors duration-200 shadow-lg"
                       title={lang === "ja" ? "画像削除" : "Remove Image"}
                     >
                       ×
@@ -301,7 +291,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
             {/* エラーメッセージ表示 */}
             {error && (
-              <div className="px-4 py-3 rounded-xl bg-red-100 border border-red-200 text-red-700 text-center">
+              <div className="px-4 py-3 rounded-sm border-l-4 border-stamp bg-stamp/10 text-stamp text-center">
                 {error}
               </div>
             )}
@@ -309,7 +299,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             {/* 投稿作成ボタン */}
             <button
               type="submit"
-              className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full px-6 py-3 bg-stamp text-paper font-display font-semibold rounded-sm hover:bg-stamp/90 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
               {loading ? (lang === "ja" ? "作成中..." : "Creating...") : dict.createPost}
@@ -319,10 +309,10 @@ const handleSubmit = async (e: React.FormEvent) => {
             <button
               type="button"
               onClick={() => router.push("/blog")}
-              className={`w-full px-6 py-3 font-semibold rounded-xl border-2 transition-all duration-200 ${
+              className={`w-full px-6 py-3 font-display font-semibold rounded-sm border transition-colors duration-200 ${
                 theme === 'dark'
-                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700/50 hover:text-white'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-100/50 hover:text-gray-900'
+                  ? 'border-ink-dark/30 text-ink-muted-dark hover:bg-card-dark hover:text-ink-dark'
+                  : 'border-ink/30 text-ink-muted hover:bg-card hover:text-ink'
               }`}
             >
               {dict.cancel}

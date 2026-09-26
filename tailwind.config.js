@@ -13,14 +13,23 @@ export default {
   // Tailwindのデフォルトテーマを拡張します。
   theme: {
     extend: {
-      // カスタムカラーを定義し、CSS変数とマッピングします。
+      // ヴィンテージ・アーカイブカードのカラーパレット
       colors: {
-        // CSS変数名と一致させるためにケバブケースを使用します。
-        'primary-bg': 'var(--color-primary-bg)',    // メインの背景色
-        'secondary-bg': 'var(--color-secondary-bg)', // カードやモーダルなどのサブ背景色
-        'primary-text': 'var(--color-primary-text)', // メインのテキスト色
-        'secondary-text': 'var(--color-secondary-text)', // サブのテキスト色 (例: 日付、著者名)
-        'accent': 'var(--color-accent)',           // アクセント色 (リンク、ボタンなど)
+        paper: '#F2E8D5',        // メイン背景（褪せた洋紙）
+        'paper-dark': '#1C1712', // ダークモード背景（夜間閲覧室）
+        card: '#E8DCC0',         // カード背景（ライト）
+        'card-dark': '#28211A',  // カード背景（ダーク）
+        ink: '#3A2E22',          // メインテキスト（古いインク）
+        'ink-dark': '#E8DCC0',   // メインテキスト（ダーク）
+        'ink-muted': '#6B5D4F',  // サブテキスト
+        'ink-muted-dark': '#A6997F',
+        stamp: '#A6402E',        // アクセント（図書館の貸出印）
+        archive: '#4A5D45',      // 補助アクセント（深緑）
+      },
+      fontFamily: {
+        display: ['var(--font-display)'],
+        body: ['var(--font-body)'],
+        mono: ['var(--font-mono)'],
       },
     },
   },

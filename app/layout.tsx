@@ -1,6 +1,6 @@
 // 📂 app/layout.tsx
 
-import { Inter } from "next/font/google"; // Google FontsのInterをインポートします。
+import { Fraunces, Lora, Courier_Prime } from "next/font/google"; // ヴィンテージテーマ用フォント
 import "./styles/globals.css"; // グローバルCSSをインポートします (app/styles/globals.css パス)。
 
 // 必要に応じて、お客様のプロジェクトに実際に存在するコンポーネントに変更してください。
@@ -10,7 +10,23 @@ import { ThemeProvider } from "@/components/ThemeProvider";     // ThemeProvider
 
 import { AuthProvider } from '@/hooks/useAuth'; // AuthProviderをインポートします。
 
-const inter = Inter({ subsets: ["latin"] }); // Interフォントのサブセットを設定します。
+// 見出し用: クセのあるセリフ体（図書館のアーカイブカードのような雰囲気）
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: ["500", "600", "700"],
+});
+// 本文用: 落ち着いた可読性の高いセリフ体
+const lora = Lora({
+  subsets: ["latin"],
+  variable: "--font-body",
+});
+// メタ情報用（日付・タグ）: タイプライター調のモノスペース
+const courierPrime = Courier_Prime({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-mono",
+});
 
 /**
  * メタデータ定義
@@ -35,8 +51,8 @@ export default function RootLayout({
   return (
     // HTMLのルート要素。言語を日本語に設定します。
     <html lang="ja">
-      {/* bodyタグにInterフォントのクラスを適用します。 */}
-      <body className={inter.className}>
+      {/* bodyタグにヴィンテージフォント3種のCSS変数を適用します。 */}
+      <body className={`${fraunces.variable} ${lora.variable} ${courierPrime.variable} font-body`}>
         {/* テーマプロバイダーでアプリケーション全体をラップします。 */}
         <ThemeProvider>
           {/* 言語プロバイダーでアプリケーション全体をラップします。 */}

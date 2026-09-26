@@ -2,6 +2,7 @@
 "use client"; // このファイルがクライアントコンポーネントであることを宣言します。
 
 import { useState } from "react";
+import Link from "next/link";
 import { useLang } from "@/components/LanguageProvider"; // 言語プロバイダーをインポートします。
 import { useAuth } from "@/hooks/useAuth"; // 認証フックをインポート
 
@@ -142,29 +143,25 @@ export default function LoginPage() {
   };
 
   return (
-    // 最上位のコンテナ。テーマ状態に応じて背景グラデーションとテキスト色を調整
-    <div className={`flex items-center justify-center min-h-screen transition-all duration-300 ${
-      theme === 'dark'
-        ? 'dark bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'
-        : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'
+    // 最上位のコンテナ。ヴィンテージ・アーカイブテーマの背景色を適用
+    <div className={`flex items-center justify-center min-h-screen transition-colors duration-300 ${
+      theme === 'dark' ? 'dark bg-paper-dark' : 'bg-paper'
     }`}>
       {/* 言語切り替えとテーマトグルボタンのコンテナ */}
       <div className="absolute top-6 right-6 flex items-center space-x-4">
         {/* 言語選択ボタン */}
-        <div className={`inline-flex rounded-xl overflow-hidden shadow-lg ${
-          theme === 'dark'
-            ? 'bg-gray-800/80 backdrop-blur-sm border border-gray-700/50'
-            : 'bg-white/80 backdrop-blur-sm border border-gray-200/50'
+        <div className={`inline-flex rounded-sm overflow-hidden border border-dashed ${
+          theme === 'dark' ? 'border-ink-dark/30 bg-card-dark/60' : 'border-ink/30 bg-card/60'
         }`}>
           <button
             onClick={() => setLang("en")}
             disabled={isLoading} // ローディング中は無効化
-            className={`px-4 py-2 font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`px-4 py-2 font-mono text-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
               lang === "en"
-                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                ? 'bg-stamp text-paper'
                 : theme === 'dark'
-                  ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                  ? 'text-ink-muted-dark hover:text-ink-dark hover:bg-card-dark'
+                  : 'text-ink-muted hover:text-ink hover:bg-card'
             }`}
           >
             EN
@@ -172,12 +169,12 @@ export default function LoginPage() {
           <button
             onClick={() => setLang("ja")}
             disabled={isLoading} // ローディング中は無効化
-            className={`px-4 py-2 font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`px-4 py-2 font-mono text-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
               lang === "ja"
-                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                ? 'bg-stamp text-paper'
                 : theme === 'dark'
-                  ? 'text-gray-300 hover:text-white hover:bg-gray-700/50'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50'
+                  ? 'text-ink-muted-dark hover:text-ink-dark hover:bg-card-dark'
+                  : 'text-ink-muted hover:text-ink hover:bg-card'
             }`}
           >
             JP
@@ -187,39 +184,25 @@ export default function LoginPage() {
         <ThemeToggleButton />
       </div>
 
-      {/* ログインフォームカード */}
-      <div className={`p-8 rounded-2xl shadow-2xl w-full max-w-md transition-all duration-300 ${
-        theme === 'dark'
-          ? 'bg-gray-800/60 border border-gray-700/50'
-          : 'bg-white/80 border border-gray-200/50'
+      {/* ログインフォームカード：図書館の索引カード風 */}
+      <div className={`archive-card p-8 w-full max-w-md shadow-lg ${
+        theme === 'dark' ? 'shadow-black/30' : 'shadow-ink/10'
       }`}>
-        <h2 className={`text-3xl font-bold mb-8 text-center bg-gradient-to-r ${
-          theme === 'dark'
-            ? 'from-blue-400 to-purple-400'
-            : 'from-blue-600 to-purple-600'
-        } bg-clip-text text-transparent`}>
+        <h2 className="font-display text-3xl font-semibold mb-8 text-center">
           {dict.loginTitle}
         </h2>
         
         {/* エラーメッセージ表示 */}
         {error && (
-          <div className={`mb-6 p-4 rounded-xl border-l-4 ${
-            theme === 'dark'
-              ? 'bg-red-900/20 border-red-500 text-red-400'
-              : 'bg-red-50 border-red-500 text-red-700'
-          }`}>
+          <div className="mb-6 p-4 rounded-sm border-l-4 border-stamp bg-stamp/10 text-stamp">
             <p className="text-sm font-medium">{error}</p>
           </div>
         )}
 
         {/* ログイン試行回数の警告 */}
         {loginAttempts >= 3 && loginAttempts < MAX_LOGIN_ATTEMPTS && (
-          <div className={`mb-6 p-4 rounded-xl border-l-4 ${
-            theme === 'dark'
-              ? 'bg-yellow-900/20 border-yellow-500 text-yellow-400'
-              : 'bg-yellow-50 border-yellow-500 text-yellow-700'
-          }`}>
-            <p className="text-sm font-medium">
+          <div className="mb-6 p-4 rounded-sm border-l-4 border-archive bg-archive/10 text-archive dark:text-archive">
+            <p className="text-sm font-medium font-mono">
               ログイン失敗が{loginAttempts}回続いています。残り{MAX_LOGIN_ATTEMPTS - loginAttempts}回です。
             </p>
           </div>
@@ -233,11 +216,11 @@ export default function LoginPage() {
               value={email}
               onChange={handleInputChange(setEmail)}
               disabled={isLoading || loginAttempts >= MAX_LOGIN_ATTEMPTS} // ローディング중または試行回数超過時は無効化
-              className={`w-full px-5 py-3 rounded-xl border transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`w-full px-5 py-3 rounded-sm border transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-transparent focus:outline-none ${
                 theme === 'dark'
-                  ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20'
-                  : 'bg-white/80 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
-              } focus:outline-none`}
+                  ? 'border-ink-dark/30 text-ink-dark placeholder-ink-muted-dark focus:border-stamp'
+                  : 'border-ink/30 text-ink placeholder-ink-muted focus:border-stamp'
+              }`}
               required
               autoComplete="email" // オートコンプリート属性を追加
               maxLength={254} // メールアドレスの最大長を制限
@@ -250,11 +233,11 @@ export default function LoginPage() {
               value={password}
               onChange={handleInputChange(setPassword)}
               disabled={isLoading || loginAttempts >= MAX_LOGIN_ATTEMPTS} // ローディング중または試行回数超過時は無効化
-              className={`w-full px-5 py-3 rounded-xl border transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`w-full px-5 py-3 rounded-sm border transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-transparent focus:outline-none ${
                 theme === 'dark'
-                  ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20'
-                  : 'bg-white/80 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
-              } focus:outline-none`}
+                  ? 'border-ink-dark/30 text-ink-dark placeholder-ink-muted-dark focus:border-stamp'
+                  : 'border-ink/30 text-ink placeholder-ink-muted focus:border-stamp'
+              }`}
               required
               autoComplete="current-password" // オートコンプリート속성を追가
               maxLength={128} // パスワードの최대長을制限
@@ -263,10 +246,10 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading || loginAttempts >= MAX_LOGIN_ATTEMPTS || !email.trim() || !password.trim()} // 조건에応じて無효化
-            className={`w-full px-6 py-3 font-semibold rounded-xl transition-all duration-200 shadow-lg ${
+            className={`w-full px-6 py-3 font-display font-semibold rounded-sm transition-colors duration-200 ${
               isLoading || loginAttempts >= MAX_LOGIN_ATTEMPTS || !email.trim() || !password.trim()
-                ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 hover:shadow-xl'
+                ? 'bg-ink-muted/30 text-ink-muted cursor-not-allowed'
+                : 'bg-stamp text-paper hover:bg-stamp/90'
             }`}
           >
             {isLoading ? "ログイン中..." : dict.loginButton}
@@ -274,17 +257,15 @@ export default function LoginPage() {
         </form>
         
         <p className={`text-center mt-6 text-sm ${
-          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+          theme === 'dark' ? 'text-ink-muted-dark' : 'text-ink-muted'
         }`}>
           {dict.noAccountPrompt}{" "}
-          <a
+          <Link
             href="/register" 
-            className={`font-bold hover:underline transition-colors duration-200 ${
-              theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-500'
-            }`}
+            className="font-bold hover:underline transition-colors duration-200 text-stamp hover:text-stamp/80"
           >
             {dict.registerLink}
-          </a>
+          </Link>
         </p>
       </div>
     </div>
