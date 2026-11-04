@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
+import { randomUUID } from 'node:crypto';
 
 // ユーザータイプ定義
 export interface User {
@@ -89,6 +90,7 @@ export function generateJWT(user: User): string {
       id: user.id,
       email: user.email,
       name: user.name,
+      sessionId: randomUUID(),
     },
     jwtSecret,
     {
