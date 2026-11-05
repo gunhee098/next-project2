@@ -24,11 +24,13 @@ model User {
   likes         Like[] // このユーザーがいいねした投稿とのリレーション
   comments      Comment[] // このユーザーが作成したコメントとのリレーション
   commentLikes  CommentLike[] // このユーザーがいいねしたコメントとのリレーション
- loginAttempts     Int?      @map("loginAttempts")
-  lastFailedLogin   DateTime? @map("lastFailedLogin")
-  lockoutUntil      DateTime? @map("lockoutUntil")
-  lastLogin         DateTime? @map("lastLogin")
-  isActive          Boolean   @default(true) @map("is_active") 
+  // Legacy account-lockout fields retained for existing database compatibility.
+  // Authentication throttling is now tracked by LoginRateLimit per client IP.
+  loginAttempts     Int?      @map("loginAttempts")
+  lastFailedLogin   DateTime? @map("lastFailedLogin") @db.Timestamp(6)
+  lockoutUntil      DateTime? @map("lockoutUntil") @db.Timestamp(6)
+  lastLogin         DateTime? @map("lastLogin") @db.Timestamp(6)
+  isActive          Boolean?  @default(true) @map("is_active")
 
   @@map("user")
 }
@@ -90,4 +92,14 @@ model CommentLike {
 
   @@unique([userId, commentId]) // 一人のユーザーは一つのコメントに一度だけいいね可能 (複合ユニークキー)
   @@map("comment_like") // データベーステーブル名を 'comment_like' として明示
+}
+
+model LoginRateLimit {
+  ipHash          String   @id @map("ip_hash")
+  requests        Int      @default(0)
+  windowStartedAt DateTime @default(now()) @map("window_started_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([updatedAt])
+  @@map("login_rate_limit")
 }

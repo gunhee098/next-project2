@@ -13,8 +13,40 @@ export interface User {
 
 // JWT ペイロードタイプ
 export interface JWTPayload extends User {
-  iat: number;
-  exp: number;
+  sessionId: string;
+  iat?: number;
+  exp?: number;
+}
+
+const JWT_ISSUER = 'blog-app';
+const JWT_AUDIENCE = 'blog-users';
+
+/** Verifies a token using the shared application JWT policy. */
+export function verifyJWT(token: string): JWTPayload {
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    throw new Error('JWT_SECRET環境変数が設定されていません');
+  }
+
+  const decoded = jwt.verify(token, jwtSecret, {
+    algorithms: ['HS256'],
+    issuer: JWT_ISSUER,
+    audience: JWT_AUDIENCE,
+    maxAge: '24h',
+  });
+
+  if (
+    typeof decoded === 'string' ||
+    typeof decoded.id !== 'string' ||
+    typeof decoded.email !== 'string' ||
+    typeof decoded.name !== 'string' ||
+    typeof decoded.sessionId !== 'string' ||
+    !decoded.sessionId
+  ) {
+    throw new jwt.JsonWebTokenError('Invalid token payload');
+  }
+
+  return decoded as JWTPayload;
 }
 
 /**
@@ -30,18 +62,7 @@ export async function getCurrentUser(): Promise<User | null> {
       return null;
     }
 
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-      console.error('🚨 JWT_SECRET環境変数が設定されていません');
-      return null;
-    }
-
-    const decoded = jwt.verify(token, jwtSecret) as JWTPayload;
-    
-    // 必要なフィールドの検証
-    if (!decoded.id || !decoded.email || !decoded.name) {
-      return null;
-    }
+    const decoded = verifyJWT(token);
 
     return {
       id: decoded.id,
@@ -95,8 +116,8 @@ export function generateJWT(user: User): string {
     jwtSecret,
     {
       expiresIn: '24h', // トークンの有効期限
-      issuer: 'blog-app',
-      audience: 'blog-users',
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
     }
   );
 }

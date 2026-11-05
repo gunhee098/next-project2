@@ -23,16 +23,12 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false); // ローディング状態を追加
   const [error, setError] = useState(""); // エラー状態を追加
-  const [loginAttempts, setLoginAttempts] = useState(0); // ログイン試行回数を追跡
 
   const { lang, setLang } = useLang(); // 言語状態と設定関数を取得します。
   const dict = lang === "ja" ? ja : en; // 現在の言語に応じた辞書データを設定します。
   const { login } = useAuth(); // 認証フックからログイン関数を取得
 
   const { theme } = useTheme(); // 現在のテーマ状態を取得します (light/dark/undefined)。
-
-  // 最大ログイン試行回数の定数
-  const MAX_LOGIN_ATTEMPTS = 5;
 
   /**
    * 入力値のバリデーション関数
@@ -62,12 +58,6 @@ export default function LoginPage() {
    */
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault(); // デフォルトのフォーム送信動作を防止します。
-    
-    // 試行回数制限チェック
-    if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
-      setError("ログイン試行回数の上限に達しました。しばらく待ってから再試行してください。");
-      return;
-    }
 
     setError(""); // 前回のエラーメッセージをクリア
     setIsLoading(true); // ローディング状態を有効化
@@ -103,16 +93,9 @@ export default function LoginPage() {
         
         // useAuthのlogin関数を使用してユーザー状態を更新
         login(data.user);
-        
-        // 成功時は試行回数をリセット
-        setLoginAttempts(0);
-        
         console.log("✅ ログインに成功しました");
       } else {
-        // ログイン失敗時の処理
-        setLoginAttempts(prev => prev + 1);
-        
-        // サーバーからのエラーメッセージを使用（既存APIの応答形式に対応）
+        // サーバーからのエラーメッセージを使用
         if (res.status === 401) {
           setError(data.error || "メールアドレスまたはパスワードが正しくありません。");
         } else if (res.status === 429) {
@@ -128,7 +111,6 @@ export default function LoginPage() {
     } catch (error) {
       console.error("🚨 ログイン中にエラーが発生しました:", error);
       setError("ネットワークエラーが発生しました。インターネット接続を確認してください。");
-      setLoginAttempts(prev => prev + 1);
     } finally {
       setIsLoading(false); // ローディング状態を無効化
     }
@@ -199,15 +181,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* ログイン試行回数の警告 */}
-        {loginAttempts >= 3 && loginAttempts < MAX_LOGIN_ATTEMPTS && (
-          <div className="mb-6 p-4 rounded-sm border-l-4 border-archive bg-archive/10 text-archive dark:text-archive">
-            <p className="text-sm font-medium font-mono">
-              ログイン失敗が{loginAttempts}回続いています。残り{MAX_LOGIN_ATTEMPTS - loginAttempts}回です。
-            </p>
-          </div>
-        )}
-
         <form onSubmit={handleLogin} className="space-y-6" noValidate>
           <div>
             <input
@@ -215,7 +188,7 @@ export default function LoginPage() {
               placeholder={dict.emailPlaceholder}
               value={email}
               onChange={handleInputChange(setEmail)}
-              disabled={isLoading || loginAttempts >= MAX_LOGIN_ATTEMPTS} // ローディング중または試行回数超過時は無効化
+              disabled={isLoading} // ローディング中は無効化
               className={`w-full px-5 py-3 rounded-sm border transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-transparent focus:outline-none ${
                 theme === 'dark'
                   ? 'border-ink-dark/30 text-ink-dark placeholder-ink-muted-dark focus:border-stamp'
@@ -232,7 +205,7 @@ export default function LoginPage() {
               placeholder={dict.passwordPlaceholder}
               value={password}
               onChange={handleInputChange(setPassword)}
-              disabled={isLoading || loginAttempts >= MAX_LOGIN_ATTEMPTS} // ローディング중または試行回数超過時は無効化
+              disabled={isLoading} // ローディング中は無効化
               className={`w-full px-5 py-3 rounded-sm border transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-transparent focus:outline-none ${
                 theme === 'dark'
                   ? 'border-ink-dark/30 text-ink-dark placeholder-ink-muted-dark focus:border-stamp'
@@ -245,9 +218,9 @@ export default function LoginPage() {
           </div>
           <button
             type="submit"
-            disabled={isLoading || loginAttempts >= MAX_LOGIN_ATTEMPTS || !email.trim() || !password.trim()} // 조건에応じて無효化
+            disabled={isLoading || !email.trim() || !password.trim()} // 조건에応じて無효化
             className={`w-full px-6 py-3 font-display font-semibold rounded-sm transition-colors duration-200 ${
-              isLoading || loginAttempts >= MAX_LOGIN_ATTEMPTS || !email.trim() || !password.trim()
+              isLoading || !email.trim() || !password.trim()
                 ? 'bg-ink-muted/30 text-ink-muted cursor-not-allowed'
                 : 'bg-stamp text-paper hover:bg-stamp/90'
             }`}

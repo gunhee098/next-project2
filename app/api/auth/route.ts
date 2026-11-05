@@ -3,91 +3,61 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { createHmac } from "node:crypto";
 import { generateJWT, AUTH_COOKIE_OPTIONS } from "@/lib/auth";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 const SALT_ROUNDS = 12;
-const MAX_LOGIN_ATTEMPTS = 5;
-const LOCKOUT_MS = 15 * 60 * 1000; // 15分
+const MAX_AUTH_REQUESTS = 30;
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const RATE_LIMIT_ROW_TTL_MS = 24 * 60 * 60 * 1000;
 
 /**
- * 🔒 ユーザーレベルのレート制限を DB (User モデル) で管理します。
- * インメモリ実装ではサーバー再起動で状態がリセットされ、
- * DB 实装では再起動後もロックアウト状態が継続します。
+ * Hash client IPs before storing them, and update counters atomically in Postgres.
  */
-async function checkRateLimit(userId: string): Promise<boolean> {
-  const now = new Date();
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      loginAttempts: true,
-      lastFailedLogin: true,
-      lockoutUntil: true,
-    },
-  });
-
-  if (!user) {
-    return true;
-  }
-
-  // ロックアウト期間中の場合はブロック
-  if (user.lockoutUntil && user.lockoutUntil > now) {
-    return false;
-  }
-
-  // ロックアウト期間が切れた、または初回の場合はカウントをリセット
-  const isWindowExpired =
-    !user.lastFailedLogin ||
-    now.getTime() - user.lastFailedLogin.getTime() > LOCKOUT_MS;
-
-  if (isWindowExpired) {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { loginAttempts: 0, lastFailedLogin: null, lockoutUntil: null },
-    });
-    return true;
-  }
-
-  return (user.loginAttempts ?? 0) < MAX_LOGIN_ATTEMPTS;
+function getClientIP(request: Request): string {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  return request.headers.get("x-real-ip")?.trim() ||
+    request.headers.get("cf-connecting-ip")?.trim() ||
+    forwardedFor?.split(",").at(-1)?.trim() ||
+    "unknown";
 }
 
-/**
- * ログイン失敗時のカウントを DB に記録します。
- */
-async function recordFailedLogin(userId: string): Promise<void> {
+async function consumeAuthRateLimit(ip: string): Promise<boolean> {
   const now = new Date();
+  const cutoff = new Date(now.getTime() - RATE_LIMIT_WINDOW_MS);
+  const expiresBefore = new Date(now.getTime() - RATE_LIMIT_ROW_TTL_MS);
+  const ipHashSecret = process.env.JWT_SECRET;
+  if (!ipHashSecret) {
+    throw new Error("JWT_SECRET is not configured");
+  }
+  const ipHash = createHmac("sha256", ipHashSecret).update(ip).digest("hex");
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { loginAttempts: true },
+  await prisma.loginRateLimit.deleteMany({
+    where: { updatedAt: { lt: expiresBefore } },
   });
 
-  if (!user) return;
+  const [result] = await prisma.$queryRaw<{ requests: number }[]>`
+    INSERT INTO "login_rate_limit" ("ip_hash", "requests", "window_started_at", "updated_at")
+    VALUES (${ipHash}, 1, ${now}, ${now})
+    ON CONFLICT ("ip_hash") DO UPDATE SET
+      "requests" = CASE
+        WHEN "login_rate_limit"."window_started_at" <= ${cutoff} THEN 1
+        ELSE "login_rate_limit"."requests" + 1
+      END,
+      "window_started_at" = CASE
+        WHEN "login_rate_limit"."window_started_at" <= ${cutoff} THEN ${now}
+        ELSE "login_rate_limit"."window_started_at"
+      END,
+      "updated_at" = ${now}
+    RETURNING "requests"
+  `;
 
-  const nextAttempts = (user.loginAttempts ?? 0) + 1;
-  const shouldLockout = nextAttempts >= MAX_LOGIN_ATTEMPTS;
+  if (!result) {
+    throw new Error("Could not update authentication rate limit");
+  }
 
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      loginAttempts: nextAttempts,
-      lastFailedLogin: now,
-      ...(shouldLockout
-        ? { lockoutUntil: new Date(now.getTime() + LOCKOUT_MS) }
-        : { lockoutUntil: null }),
-    },
-  });
-}
-
-/**
- * ログイン成功時のカウントをリセットします。
- */
-async function resetLoginAttempts(userId: string): Promise<void> {
-  await prisma.user.update({
-    where: { id: userId },
-    data: { loginAttempts: 0, lastFailedLogin: null, lockoutUntil: null },
-  });
+  return result.requests <= MAX_AUTH_REQUESTS;
 }
 
 function validateInput(type: string, name?: string, email?: string, password?: string) {
@@ -132,6 +102,13 @@ function validateInput(type: string, name?: string, email?: string, password?: s
 
 export async function POST(req: Request) {
   try {
+    if (!(await consumeAuthRateLimit(getClientIP(req)))) {
+      return NextResponse.json(
+        { error: "リクエスト制限に達しました。15分後に再試行してください。" },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { type, name, email, password } = body;
 
@@ -200,24 +177,10 @@ export async function POST(req: Request) {
           select: { id: true, name: true, email: true, password: true }
         });
 
-                // 🔒 ユーザー特定後に DB レベルのレート制限をチェック
-        // (インメモリ Map ではサーバー再起動で状態がリセットされた)
-        // 🔒 ユーザー特定後に DB レベルのレート制限をチェック
-        // (インメモリ Map ではサーバー再起動で状態がリセットされた)
-        if (user) {
-          const allowed = await checkRateLimit(user.id);
-          if (!allowed) {
-            return NextResponse.json(
-              { error: "ログイン試行回数の上限に達しました。15分後に再試行してください。" },
-              { status: 429 }
-            );
-          }
-        }
-
         if (!user) {
           // 🔒 アカウント列挙を防ぐため、存在しないアカウントでも同じエラーを返す
           return NextResponse.json(
-            { error: "メールア dressまたはパスワードが正しくありません。" },
+            { error: "メールアドレスまたはパスワードが正しくありません。" },
             { status: 401 }
           );
         }
@@ -225,16 +188,11 @@ export async function POST(req: Request) {
         // パスワード検証
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-          // 🔒 失敗率为 DB に記録し、ブルートフォースを防止
-          await recordFailedLogin(user.id);
           return NextResponse.json(
-            { error: "メールア dressまたはパスワードが正しくありません。" },
+            { error: "メールアドレスまたはパスワードが正しくありません。" },
             { status: 401 }
           );
         }
-
-        // 🔒 ログイン成功率为カウントをリセット
-        await resetLoginAttempts(user.id);
 
         // 🔒 Auth Serviceを使用してJWTトークンを生成
         // nameがnullの場合は空文字列に変換してからJWT生成

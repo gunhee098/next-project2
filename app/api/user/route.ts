@@ -1,7 +1,7 @@
 // 📂 app/api/user/route.ts
 import { NextResponse, NextRequest } from "next/server"; // Next.jsのAPIルートからのレスポンスを扱うためのモジュール
-import jwt from "jsonwebtoken"; // JWT (JSON Web Token) を扱うためのライブラリ
 import { prisma } from "@/lib/prisma"; // ✅ Prismaクライアントをインポートします。
+import { verifyJWT } from "@/lib/auth";
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'; // Prismaエラータイプをインポートします。
 
 // GETリクエストハンドラー
@@ -16,7 +16,10 @@ export async function GET(req: NextRequest) {
     }
 
     // 🔹 2️⃣ トークン文字列を抽出 ("Bearer " の後から)
-    const token = authHeader.split(" ")[1];
+    const token = authHeader.slice("Bearer ".length).trim();
+    if (!token) {
+      return NextResponse.json({ error: "認証トークンが必要です。" }, { status: 401 });
+    }
 
     // Reject authentication requests if the server secret is not configured.
     const jwtSecret = process.env.JWT_SECRET;
@@ -25,21 +28,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "認証サービスを利用できません。" }, { status: 500 });
     }
 
-    // Verify using the same signing constraints as tokens created by generateJWT.
-    const decoded = jwt.verify(token, jwtSecret, {
-      algorithms: ["HS256"],
-      issuer: "blog-app",
-      audience: "blog-users",
-    });
-
-    if (
-      typeof decoded === "string" ||
-      typeof decoded.id !== "string" ||
-      typeof decoded.email !== "string" ||
-      typeof decoded.name !== "string"
-    ) {
-      return NextResponse.json({ error: "無効な認証トークンです。" }, { status: 401 });
-    }
+    const decoded = verifyJWT(token);
 
     // 🔹 4️⃣ Prismaを使用してデータベースからユーザー情報を取得
     const user = await prisma.user.findUnique({

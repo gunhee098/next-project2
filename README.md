@@ -65,9 +65,9 @@ Next.js 15 (App Router) + TypeScript で構築した、エンタープライズ�
 | 対策 | 実装方法 | 効果 |
 |------|----------|------|
 | **XSS攻撃防止** | httpOnly Cookie | JSからトークンアクセス不可 |
-| **CSRF攻撃防止** | SameSite=Lax Cookie | クロスサイトリクエスト制限 |
+| **CSRF攻撃防止** | SameSite=Strict Cookie | クロスサイトリクエスト制限 |
 | **パスワード保護** | bcrypt (SALT_ROUNDS=12) | DB漏洩時も安全 |
-| **ブルートフォース対策** | レート制限 (15分/5回) | 総当たり攻撃防止 |
+| **ブルートフォース対策** | IPごとに15分間30リクエストまで (PostgreSQLで原子的に計数) | 単一IPからの連続試行を抑制 |
 | **セッション管理** | 固有sessionId付与 | デバイス間の独立性確保 |
 | **SQL Injection対策** | Prisma ORM | パラメータ化クエリ |
 
@@ -180,8 +180,11 @@ NODE_ENV="development"
 # Prisma生成
 npx prisma generate
 
-# マイグレーション実行
+# ローカル開発DBのスキーマ同期
 npx prisma db push
+
+# 本番・ステージングでは接続先を確認して適用
+npx prisma migrate deploy
 
 # (オプション) Prisma Studio起動
 npx prisma studio
