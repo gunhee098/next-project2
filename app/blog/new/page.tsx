@@ -251,7 +251,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 ref={fileInputRef}
                 type="file"
                 id="image"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,image/gif"
                 onChange={handleFileChange}
                 className={`w-full px-5 py-3 rounded-sm border transition-colors duration-200 bg-transparent focus:outline-none disabled:opacity-50 ${
                   theme === 'dark'

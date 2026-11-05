@@ -1,62 +1,86 @@
-// 📂 app/api/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { v2 as cloudinary, type UploadApiResponse } from 'cloudinary'; // Cloudinary SDKをインポート
+import { v2 as cloudinary, type UploadApiResponse } from 'cloudinary';
+import { getCurrentUser } from '@/lib/auth';
 
-// Cloudinary 設定 (環境変数を使用)
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_MULTIPART_OVERHEAD = 64 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+]);
+
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, // .env.local に NEXT_PUBLIC_ 接頭辞があってもサーバーサイドで利用可能
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-/**
- * ⚡ [POST] 画像アップロード
- * クライアントから受け取った画像をCloudinaryにアップロードし、そのURLを返します。
- * @param req NextRequest オブジェクト
- * @returns NextResponse オブジェクト (成功時は画像URL, 失敗時はエラーメッセージ)
- */
+function hasValidImageSignature(buffer: Buffer, contentType: string): boolean {
+  switch (contentType) {
+    case 'image/jpeg':
+      return buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
+    case 'image/png':
+      return buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+    case 'image/webp':
+      return buffer.toString('ascii', 0, 4) === 'RIFF' && buffer.toString('ascii', 8, 12) === 'WEBP';
+    case 'image/gif':
+      return buffer.toString('ascii', 0, 6) === 'GIF87a' || buffer.toString('ascii', 0, 6) === 'GIF89a';
+    default:
+      return false;
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData(); // マルチパート/フォームデータを解析
-    const file = formData.get('file'); // 'file'という名前で送信されたファイルを取得
-
-    // ファイルが添付されていない場合のバリデーション
-    if (!file) {
-      return NextResponse.json({ error: 'ファイルがアップロードされていません。' }, { status: 400 });
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
     }
 
-    // FormDataからファイルデータを読み込み、Bufferに変換
-    // Next.jsのRequest.formData()から取得されるFileオブジェクトはBlobを継承しています。
-    const arrayBuffer = await (file as Blob).arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const contentLength = Number(req.headers.get('content-length'));
+    if (Number.isFinite(contentLength) && contentLength > MAX_FILE_SIZE + MAX_MULTIPART_OVERHEAD) {
+      return NextResponse.json({ error: '이미지 크기는 5MB 이하여야 합니다.' }, { status: 413 });
+    }
 
-    // Cloudinaryに画像をアップロード
-    // Promiseでラップすることで、非同期処理を待機可能にする
-    const result = await new Promise<UploadApiResponse | undefined>((resolve, reject) => {
+    const formData = await req.formData();
+    const file = formData.get('file');
+    if (!(file instanceof File) || file.size === 0) {
+      return NextResponse.json({ error: '이미지 파일을 첨부해 주세요.' }, { status: 400 });
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: '이미지 크기는 5MB 이하여야 합니다.' }, { status: 413 });
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+      return NextResponse.json({ error: 'JPEG, PNG, WebP, GIF 형식만 업로드할 수 있습니다.' }, { status: 415 });
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    if (!hasValidImageSignature(buffer, file.type)) {
+      return NextResponse.json({ error: '파일 내용이 이미지 형식과 일치하지 않습니다.' }, { status: 415 });
+    }
+
+    const result = await new Promise<UploadApiResponse>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
-        { folder: "nextjs-blog" }, // Cloudinaryのフォルダを指定
+        { folder: 'nextjs-blog', resource_type: 'image' },
         (error, uploadResult) => {
           if (error) {
             reject(error);
-          } else {
+          } else if (uploadResult) {
             resolve(uploadResult);
+          } else {
+            reject(new Error('Cloudinary returned no upload result'));
           }
         }
-      ).end(buffer); // Bufferデータをアップロードストリームに送信
+      ).end(buffer);
     });
 
-    // アップロード結果の検証とURLの返却
-    if (result && typeof result === 'object' && 'secure_url' in result) {
-      return NextResponse.json({ imageUrl: (result as { secure_url: string }).secure_url }, { status: 200 });
-    } else {
-      // Cloudinaryからの応答が期待される形式でない場合のログとエラー
-      console.error('Cloudinaryアップロード結果が期待通りではありません:', result);
-      return NextResponse.json({ error: '画像のアップロードに失敗しました。(Cloudinary応答エラー)' }, { status: 500 });
-    }
-
+    return NextResponse.json({ imageUrl: result.secure_url }, { status: 200 });
   } catch (error) {
-    // サーバーエラー発生時のログとエラー応答
-    console.error('画像アップロード中にサーバーエラーが発生しました:', error);
-    return NextResponse.json({ error: 'サーバーエラーが発生しました。' }, { status: 500 });
+    console.error('Image upload failed:', error);
+    return NextResponse.json({ error: '이미지 업로드 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }

@@ -395,7 +395,7 @@ export default function EditPost() {
                 ref={fileInputRef}
                 type="file"
                 id="image"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,image/gif"
                 onChange={handleFileChange}
                 className={`w-full px-5 py-3 rounded-xl border transition-all duration-200 ${
                   theme === 'dark'
