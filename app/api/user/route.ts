@@ -18,15 +18,27 @@ export async function GET(req: NextRequest) {
     // 🔹 2️⃣ トークン文字列を抽出 ("Bearer " の後から)
     const token = authHeader.split(" ")[1];
 
-    // 🔹 3️⃣ JWTトークンの検証
-    // 環境変数からJWTシークレットを取得し、トークンを検証します。
-    // 開発環境用の"default_secret"は、本番環境では必ず強力な秘密鍵に置き換えるべきです。
-    // デコードされたIDの型はschema.prismaのUserモデルに合わせてstringとします。
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "default_secret") as { id: string; email: string; name: string }; // name 필드 추가
+    // Reject authentication requests if the server secret is not configured.
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      console.error("JWT_SECRET is not configured");
+      return NextResponse.json({ error: "認証サービスを利用できません。" }, { status: 500 });
+    }
 
-    // デコードされたトークンにユーザーIDが含まれていない場合
-    if (!decoded.id) {
-      return NextResponse.json({ error: "無効なトークンです。ユーザーIDが見つかりません。" }, { status: 401 });
+    // Verify using the same signing constraints as tokens created by generateJWT.
+    const decoded = jwt.verify(token, jwtSecret, {
+      algorithms: ["HS256"],
+      issuer: "blog-app",
+      audience: "blog-users",
+    });
+
+    if (
+      typeof decoded === "string" ||
+      typeof decoded.id !== "string" ||
+      typeof decoded.email !== "string" ||
+      typeof decoded.name !== "string"
+    ) {
+      return NextResponse.json({ error: "無効な認証トークンです。" }, { status: 401 });
     }
 
     // 🔹 4️⃣ Prismaを使用してデータベースからユーザー情報を取得
