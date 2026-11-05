@@ -15,21 +15,24 @@ export default {
     extend: {
       // ヴィンテージ・アーカイブカードのカラーパレット
       colors: {
-        paper: '#F2E8D5',        // メイン背景（褪せた洋紙）
-        'paper-dark': '#1C1712', // ダークモード背景（夜間閲覧室）
-        card: '#E8DCC0',         // カード背景（ライト）
-        'card-dark': '#28211A',  // カード背景（ダーク）
-        ink: '#3A2E22',          // メインテキスト（古いインク）
-        'ink-dark': '#E8DCC0',   // メインテキスト（ダーク）
-        'ink-muted': '#6B5D4F',  // サブテキスト
-        'ink-muted-dark': '#A6997F',
-        stamp: '#A6402E',        // アクセント（図書館の貸出印）
-        archive: '#4A5D45',      // 補助アクセント（深緑）
+        paper: '#F5F6F2',        // soft editorial canvas
+        'paper-dark': '#111815',
+        card: '#FFFFFF',
+        'card-dark': '#1B2420',
+        ink: '#202B26',
+        'ink-dark': '#E8EEE9',
+        'ink-muted': '#68756E',
+        'ink-muted-dark': '#A6B2AA',
+        stamp: '#347663',        // restrained botanical green
+        archive: '#A8794D',      // warm editorial accent
       },
       fontFamily: {
         display: ['var(--font-display)'],
         body: ['var(--font-body)'],
         mono: ['var(--font-mono)'],
+      },
+      borderRadius: {
+        sm: '0.75rem',
       },
     },
   },

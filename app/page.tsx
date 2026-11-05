@@ -170,6 +170,9 @@ export default function LoginPage() {
       <div className={`archive-card p-8 w-full max-w-md shadow-lg ${
         theme === 'dark' ? 'shadow-black/30' : 'shadow-ink/10'
       }`}>
+        <p className="meta-text text-center text-[11px] uppercase text-stamp mb-3">
+          {lang === "ja" ? "個人アーカイブ · ノート" : "Personal archive · Notes"}
+        </p>
         <h2 className="font-display text-3xl font-semibold mb-8 text-center">
           {dict.loginTitle}
         </h2>
